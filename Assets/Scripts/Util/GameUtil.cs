@@ -10,5 +10,11 @@ namespace Util
 		{
 			Debug.Log("Hello");
 		}
+
+        public static void GetCondition(string str)
+        {
+			string pattern = "";
+        }
 	}
+
 }
