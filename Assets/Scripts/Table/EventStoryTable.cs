@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Util;
 
 namespace Table
 {
@@ -32,6 +33,19 @@ namespace Table
         {
             if (datas.Any())
                 return;
+            RawTable rawTable = GameUtil.ReadCsvTable("EventStory");
+            foreach(var row in rawTable.data)
+            {
+                EventStoryData data = new();
+                data.id = Convert.ToInt32(rawTable.Get("id", row));
+                data.textContent = Convert.ToInt32(rawTable.Get("textContent", row));
+                data.eventType = Convert.ToInt32(rawTable.Get("eventType", row));
+                data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
+                data.days = rawTable.GetList<int>("days", row, "|");
+                data.hungerChange = rawTable.GetList<int>("hungerChange", row, "|");
+                data.thirstyChange = rawTable.GetList<int>("thirstyChange", row, "|");
+                data.mindChange = rawTable.GetList<int>("mindChange", row, "|");
+            }
         }
     }
 }
