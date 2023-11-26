@@ -38,6 +38,8 @@ public class GameManager : MonoBehaviour
 	{
 		if (Input.GetMouseButtonDown(0))
 		{
+			List<List<Table.Condition>> result = Util.GameUtil.GetConditionSet("EVT:EQUAL[10001:1]");
+			Table.Condition condition = result[0][0];
 		}
 	}
 

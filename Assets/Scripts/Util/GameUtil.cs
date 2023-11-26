@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace Util
@@ -15,9 +16,45 @@ namespace Util
             Debug.Log("Hello");
         }
 
-        public static void GetCondition(string str)
+        public static List<List<Table.Condition>> GetConditionSet(string str)
         {
-            string pattern = "";
+            List<List<Table.Condition>> result = new();
+            string[] orArr = str.Split("|");
+            for (int i = 0; i < orArr.Length; i++)
+            {
+                List<Table.Condition> andList = new();
+                string[] andArr = orArr[i].Split("&");
+                for (int j = 0; j < andArr.Length; j++)
+                {
+                    andList.Add(GetCondition(andArr[j]));
+                }
+                result.Add(andList);
+            }
+
+            return result;
+        }
+
+        public static Table.Condition GetCondition(string str)
+        {
+            string pattern = @"(?<name>[A-Z]*?):(?<func>[A-Z]*?)\[(?<param>[\s\S]*?)\]";
+            Match match = new Regex(pattern).Match(str);
+            if (match.Success)
+            {
+                string name = match.Groups["name"].Value;
+                string func = match.Groups["func"].Value;
+                List<string> param = new(match.Groups["param"].Value.Split(":"));
+                return new Table.Condition()
+                {
+                    name = name,
+                    func = func,
+                    param = param,
+                };
+            }
+            else
+            {
+                Debug.Log("Match failed: " + str);
+                return new();
+            }
         }
 
         public static Table.RawTable ReadCsvTable(string filePath)

@@ -32,6 +32,7 @@ public class ResourceManager : MonoBehaviour
 
     }
 
+
     //扣除道具
     public bool DeductItem(Dictionary<int, int> updateList)
     {
@@ -42,7 +43,7 @@ public class ResourceManager : MonoBehaviour
         }
         foreach (var itemChange in updateList)
         {
-            itemsTemp[itemChange.Key] -= itemChange.Value;
+            itemsTemp.Add(itemChange.Key, itemsTemp[itemChange.Key] - itemChange.Value);
         }
         return true;
     }
@@ -52,18 +53,31 @@ public class ResourceManager : MonoBehaviour
     {
         foreach (var itemChange in updateList)
         {
-            if (itemsTemp.ContainsKey(itemChange.Key))
-                itemsTemp[itemChange.Key] += itemChange.Value;
-            else
-                itemsTemp.Add(itemChange.Key, itemChange.Value);
+            itemsTemp.Add(itemChange.Key, itemsTemp.GetValueOrDefault(itemChange.Key) + itemChange.Value);
         }
+        return true;
+    }
+
+    public bool DeductItem(int itemId, int num)
+    {
+        if (itemsTemp.GetValueOrDefault(itemId) >= num)
+        {
+            itemsTemp.Add(itemId, itemsTemp[itemId] - num);
+            return true;
+        }
+        else return false;
+    }
+
+    public bool AddItem(int itemId, int num)
+    {
+        itemsTemp.Add(itemId, itemsTemp.GetValueOrDefault(itemId) + num);
         return true;
     }
 
     //修改角色状态
     public bool UpdateCharacter(int characterId, CharacterStatus changeStatus)
     {
-        CharacterStatus characterStatus = charactersTemp.Where((CharacterStatus e) => e.characterId == characterId).First();
+        CharacterStatus characterStatus = charactersTemp.Where(e => e.characterId == characterId).First();
         if (changeStatus.hungry + characterStatus.hungry < 0)
             return false;
         if (changeStatus.mind + characterStatus.mind < 0)
@@ -83,5 +97,15 @@ public class ResourceManager : MonoBehaviour
     {
         characters = new(charactersTemp);
         items = new(itemsTemp);
+    }
+
+    public CharacterStatus GetCharacterStatus(int characterId)
+    {
+        return charactersTemp.Where(e => e.characterId == characterId).First();
+    }
+
+    public int GetItemNum(int itemId)
+    {
+        return itemsTemp.GetValueOrDefault(itemId);
     }
 }

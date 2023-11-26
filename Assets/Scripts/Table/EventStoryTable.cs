@@ -12,16 +12,16 @@ namespace Table
         public int id;
         public int textContent;
         public int eventType;
+        public int item;
         public List<int> endTextContent;
         public List<int> days;
         public List<int> hungerChange;
         public List<int> thirstyChange;
         public List<int> mindChange;
         public List<List<int>> itemSets;
-        public int item;
-        public string include;
-        public string exclude;
-        public string priorityBranch;
+        public List<List<Condition>> include;
+        public List<List<Condition>> exclude;
+        public List<List<Condition>> priorityBranch;
     }
 
     public static class EventStoryTable
@@ -34,17 +34,22 @@ namespace Table
             if (datas.Any())
                 return;
             RawTable rawTable = GameUtil.ReadCsvTable("EventStory");
-            foreach(var row in rawTable.data)
+            foreach (var row in rawTable.data)
             {
                 EventStoryData data = new();
                 data.id = Convert.ToInt32(rawTable.Get("id", row));
                 data.textContent = Convert.ToInt32(rawTable.Get("textContent", row));
                 data.eventType = Convert.ToInt32(rawTable.Get("eventType", row));
+                data.item = Convert.ToInt32(rawTable.Get("item", row));
                 data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
                 data.days = rawTable.GetList<int>("days", row, "|");
-                data.hungerChange = rawTable.GetList<int>("hungerChange", row, "|");
-                data.thirstyChange = rawTable.GetList<int>("thirstyChange", row, "|");
-                data.mindChange = rawTable.GetList<int>("mindChange", row, "|");
+                data.hungerChange = rawTable.GetList<int>("hungerChange", row);
+                data.thirstyChange = rawTable.GetList<int>("thirstyChange", row);
+                data.mindChange = rawTable.GetList<int>("mindChange", row);
+                data.itemSets = rawTable.GetList2<int>("itemSets", row);
+                data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
+                data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
+                data.priorityBranch = GameUtil.GetConditionSet(rawTable.Get("priorityBranch", row));
             }
         }
     }
