@@ -7,49 +7,47 @@ using Util;
 
 namespace Table
 {
-    public struct EventStoryData
+    public struct ExploreData
     {
         public int id;
         public int textContent;
-        public int eventType;
-        public int itemBoxId; //获得道具
+        public int exploreNum;
+        public int groupId;
+        public int getItem; //获得道具
         public List<int> endTextContent;
-        public List<int> days;
         public List<int> hungerChange;
         public List<int> thirstyChange;
         public List<int> mindChange;
         public List<List<int>> itemSets;
         public List<List<Condition>> include;
         public List<List<Condition>> exclude;
-        public List<List<Condition>> priorityBranch;
     }
 
-    public static class EventStoryTable
+    public static class ExploreTable
     {
-        public static List<EventStoryData> datas = new();
+        public static List<ExploreData> datas = new();
 
         //读csv初始化数据
         public static void Init()
         {
             if (datas.Any())
                 return;
-            RawTable rawTable = GameUtil.ReadCsvTable("EventStory.csv");
+            RawTable rawTable = GameUtil.ReadCsvTable("EventExplory.csv");
             foreach (var row in rawTable.data)
             {
-                EventStoryData data = new();
+                ExploreData data = new();
                 data.id = Convert.ToInt32(rawTable.Get("id", row));
                 data.textContent = Convert.ToInt32(rawTable.Get("textContent", row));
-                data.eventType = Convert.ToInt32(rawTable.Get("eventType", row));
-                data.itemBoxId = Convert.ToInt32(rawTable.Get("item", row));
+                data.exploreNum = Convert.ToInt32(rawTable.Get("exploreNum", row));
+                data.groupId = Convert.ToInt32(rawTable.Get("groupId", row));
+                data.getItem = Convert.ToInt32(rawTable.Get("getItem", row));
                 data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
-                data.days = rawTable.GetList<int>("days", row, "|");
                 data.hungerChange = rawTable.GetList<int>("hungerChange", row);
                 data.thirstyChange = rawTable.GetList<int>("thirstyChange", row);
                 data.mindChange = rawTable.GetList<int>("mindChange", row);
-                data.itemSets = rawTable.GetList2<int>("itemSets", row);
+                data.itemSets = rawTable.GetList2<int>("itemSet", row);
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
-                data.priorityBranch = GameUtil.GetConditionSet(rawTable.Get("priorityBranch", row));
             }
         }
     }

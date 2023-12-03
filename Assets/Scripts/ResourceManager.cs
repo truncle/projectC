@@ -10,6 +10,7 @@ public struct CharacterStatus
     public int hungry;
     public int mind;
     public int thirsty;
+    public bool isAlive;//是否活着
 }
 
 //用来管理每轮的资源变更
@@ -22,6 +23,9 @@ public class ResourceManager : MonoBehaviour
     public List<CharacterStatus> charactersTemp;
     public Dictionary<int, int> itemsTemp;
 
+    //本日资源分配
+    public Dictionary<int, Dictionary<int, int>> resourceAlloc;
+
     public void Start()
     {
     }
@@ -32,6 +36,40 @@ public class ResourceManager : MonoBehaviour
 
     }
 
+    //分配资源
+    public bool AllocResource(int characterId, int itemId, int itemNum)
+    {
+        if (!DeductItem(itemId, itemNum))
+            return false;
+        Dictionary<int, int> itemTable = resourceAlloc.GetValueOrDefault(characterId, new Dictionary<int, int>());
+        itemTable.Add(itemId, itemTable.GetValueOrDefault(itemId) + itemNum);
+        return true;
+    }
+    public bool UnallocResource(int characterId, int itemId, int itemNum)
+    {
+        Dictionary<int, int> itemTable = resourceAlloc.GetValueOrDefault(characterId, new Dictionary<int, int>());
+        if (itemTable.GetValueOrDefault(itemId) < itemNum)
+            return false;
+        itemTable.Add(itemId, itemTable.GetValueOrDefault(itemId) - itemNum);
+        AddItem(itemId, itemNum);
+        return true;
+    }
+
+    //结算资源分配结果
+    public void SettleCurrentDay()
+    {
+        //todo 根据资源分配情况改变角色状态
+        resourceAlloc.Clear();
+    }
+
+
+    //==================== 常用方法 =======================
+
+    //道具是否足够
+    public bool HasEnoughItem(int itemId, int num)
+    {
+        return itemsTemp.GetValueOrDefault(itemId) >= num;
+    }
 
     //扣除道具
     public bool DeductItem(Dictionary<int, int> updateList)
@@ -99,6 +137,7 @@ public class ResourceManager : MonoBehaviour
         items = new(itemsTemp);
     }
 
+    //查询接口
     public CharacterStatus GetCharacterStatus(int characterId)
     {
         return charactersTemp.Where(e => e.characterId == characterId).First();

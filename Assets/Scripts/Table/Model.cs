@@ -54,4 +54,13 @@ namespace Table
         public string func;
         public List<string> param;
     }
+
+    public struct DayRecord
+    {
+        public int day;
+        public int storylineId;
+        public int exploreId;
+        public List<CharacterStatus> characters;
+        public Dictionary<int, int> items;
+    }
 }

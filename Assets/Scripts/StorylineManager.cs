@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Table;
+using Util;
 
 
 //用于判断和控制故事主线内容
@@ -10,13 +11,15 @@ public class StorylineManager : MonoBehaviour
 {
     public EventStoryData CurrentData;
 
-    //每天的选择数据
+    //每天的决策数据
     public int option = 0;
-    public HashSet<int> itemSet = new();
+    public List<int> itemSet = new();
     public bool IsChecked { get; private set; }
 
     private ResourceManager resourceManager;
     private ProcessManager processManager;
+
+    private bool isSettled = false;
 
     void Start()
     {
@@ -34,7 +37,7 @@ public class StorylineManager : MonoBehaviour
             //根据include和exclude筛选
             return e.days.Contains(day)
             && processManager.CanMeetCondition(e.include)
-            && !processManager.CanMeetCondition(e.exclude);
+            && !processManager.CanMeetCondition(e.exclude, false);
         }).ToList();
 
         //二次筛选, 根据优先条件进行筛选
@@ -59,13 +62,30 @@ public class StorylineManager : MonoBehaviour
         IsChecked = false;
     }
 
+    //结算当前事件结果
+    public void SettleCurrentDay()
+    {
+        if (isSettled)
+            return;
+        int resultIndex = 0;
+        for (int i = 0; i < CurrentData.itemSets.Count; i++)
+        {
+            if(GameUtil.ListContains(itemSet, CurrentData.itemSets[i]))
+            {
+                resultIndex = i + 1;
+            }
+        }
+        //todo 根据结果提供奖励, 需要知道资源提供对象
+        isSettled = true;
+    }
+
     public void Select(int option)
     {
         this.option = option;
         IsChecked = true;
     }
 
-    public bool UseItem(int itemId)
+    public bool SelectItem(int itemId)
     {
         bool result = resourceManager.DeductItem(itemId, 1);
         if (result)
@@ -73,9 +93,11 @@ public class StorylineManager : MonoBehaviour
         return result;
     }
 
-    public void CancelItem(int itemId)
+    public void UnselectItem(int itemId)
     {
-        itemSet.Remove(itemId);
+        if(itemSet.Remove(itemId))
+            resourceManager.AddItem(itemId, 1);
+
     }
 
     //展示

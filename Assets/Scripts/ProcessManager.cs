@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Table;
 using System;
+using System.Linq;
 
 //用来管理回合切换逻辑, 统计处理汇总各个模块的结果并保存记录
 public class ProcessManager : MonoBehaviour
@@ -15,7 +16,8 @@ public class ProcessManager : MonoBehaviour
     private ResourceManager resourceManager;
 
     //游戏中的各种记录
-    Dictionary<int, int> storylineRecord = new();
+    public List<DayRecord> dayRecord = new();
+    public Dictionary<int, int> storylineRecord = new();
 
     public void Start()
     {
@@ -34,20 +36,22 @@ public class ProcessManager : MonoBehaviour
     //需要检查所有强制选项是否选择完毕
     public bool EndCurrentDay()
     {
+        if (!storylineManager.IsChecked)
+            return false;
         CurrentDay += 1;
         return true;
     }
 
-    public bool CanMeetCondition(List<List<Condition>> conditionSet)
+    //判断某个条件集是否满足, 传一个没有condition时的默认值
+    public bool CanMeetCondition(List<List<Condition>> conditionSet, bool result = true)
     {
-
         foreach (var andList in conditionSet)
         {
             foreach (var condition in andList)
             {
                 int value = 0;
                 int conditionValue = -1;
-                bool result = true;
+                result = true;
                 switch (condition.name)
                 {
                     case "HUNGRY":
@@ -67,9 +71,9 @@ public class ProcessManager : MonoBehaviour
                         conditionValue = Convert.ToInt32(condition.param[1]);
                         break;
                     case "ITEM":
-                        break;
                         value = resourceManager.GetItemNum(Convert.ToInt32(condition.param[0]));
                         conditionValue = 1;
+                        break;
                     case "CHARACTER":
                         value = CurrentCharacter;
                         conditionValue = Convert.ToInt32(condition.param[0]);
@@ -91,6 +95,13 @@ public class ProcessManager : MonoBehaviour
                     return false;
             }
         }
-        return true;
+        return result;
     }
+
+    //保存事件结果
+    public void SaveStorylineResult(int id, int result)
+    {
+        storylineRecord.Add(id, result);
+    }
+
 }

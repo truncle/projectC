@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Util
 {
     public static class GameUtil
     {
-        static string tableFolderPath = Application.dataPath + "/CsvTable/";
+        static string tableFolderPath = Path.Combine(Application.streamingAssetsPath, "CsvTable");
 
         public static void Print()
         {
@@ -59,7 +60,7 @@ namespace Util
 
         public static Table.RawTable ReadCsvTable(string filePath)
         {
-            string path = tableFolderPath + filePath;
+            string path = Path.Combine(tableFolderPath, filePath);
             using StreamReader reader = new(path, Encoding.UTF8);
             List<List<string>> data = new();
             List<string> fields = new(reader.ReadLine().Split(","));
@@ -73,6 +74,11 @@ namespace Util
                 fields = fields,
                 data = data,
             };
+        }
+
+        public static bool ListContains<T>(List<T> list1, List<T> list2)
+        {
+            return list2.All(item => list1.Contains(item));
         }
     }
 
