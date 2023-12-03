@@ -67,16 +67,23 @@ public class StorylineManager : MonoBehaviour
     {
         if (isSettled)
             return;
-        int resultIndex = 0;
+        int resultIndex = option;
         for (int i = 0; i < CurrentData.itemSets.Count; i++)
         {
-            if(GameUtil.ListContains(itemSet, CurrentData.itemSets[i]))
+            if (GameUtil.ListContains(itemSet, CurrentData.itemSets[i]))
             {
                 resultIndex = i + 1;
             }
         }
         //todo 根据结果提供奖励, 需要知道资源提供对象
+        //CurrentData.itemBoxId
+        foreach (var statusChange in CurrentData.statusChange[resultIndex])
+        {
+            resourceManager.UpdateCharacter(statusChange);
+        }
+
         isSettled = true;
+        //todo 更新事件结果的显示
     }
 
     public void Select(int option)
@@ -87,7 +94,7 @@ public class StorylineManager : MonoBehaviour
 
     public bool SelectItem(int itemId)
     {
-        bool result = resourceManager.DeductItem(itemId, 1);
+        bool result = resourceManager.DeductItem(itemId);
         if (result)
             itemSet.Add(itemId);
         return result;
@@ -95,8 +102,8 @@ public class StorylineManager : MonoBehaviour
 
     public void UnselectItem(int itemId)
     {
-        if(itemSet.Remove(itemId))
-            resourceManager.AddItem(itemId, 1);
+        if (itemSet.Remove(itemId))
+            resourceManager.AddItem(itemId);
 
     }
 

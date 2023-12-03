@@ -36,13 +36,37 @@ namespace Table
             string[] list1 = row[index].Split(sep);
             for (int i = 0; i < list1.Length; i++)
             {
-                string[] list2 = row[index].Split(sep2);
+                string[] list2 = list1[i].Split(sep2);
                 List<T> listT = new();
-                for (int j = 0; j < list2.Length; i++)
+                for (int j = 0; j < list2.Length; j++)
                 {
                     listT.Add((T)Convert.ChangeType(list2[j], typeof(T)));
                 }
                 result.Add(listT);
+            }
+            return result;
+        }
+
+        public List<List<List<T>>> GetList3<T>(string field, List<string> row, string sep = "|", string sep2 = "&", string sep3 = ":")
+        {
+            List<List<List<T>>> result = new();
+            List<List<T>> result2 = new();
+            int index = fields.IndexOf(field);
+            string[] list1 = row[index].Split(sep);
+            for (int i = 0; i < list1.Length; i++)
+            {
+                string[] list2 = list1[i].Split(sep2);
+                for (int j = 0; j < list2.Length; j++)
+                {
+                    string[] list3 = list2[j].Split(sep2);
+                    List<T> listT = new();
+                    for (int k = 0; k < list3.Length; k++)
+                    {
+                        listT.Add((T)Convert.ChangeType(list3[k], typeof(T)));
+                    }
+                    result2.Add(listT);
+                }
+                result.Add(result2);
             }
             return result;
         }

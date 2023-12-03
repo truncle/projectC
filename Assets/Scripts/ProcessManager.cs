@@ -55,15 +55,15 @@ public class ProcessManager : MonoBehaviour
                 switch (condition.name)
                 {
                     case "HUNGRY":
-                        value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).hungry;
+                        value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).GetValue(StatusType.Hungry);
                         conditionValue = Convert.ToInt32(condition.param[1]);
                         break;
                     case "THIRSTY":
-                        value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).thirsty;
+                        value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).GetValue(StatusType.Thirsty);
                         conditionValue = Convert.ToInt32(condition.param[1]);
                         break;
                     case "MIND":
-                        value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).mind;
+                        value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).GetValue(StatusType.Mind);
                         conditionValue = Convert.ToInt32(condition.param[1]);
                         break;
                     case "EVT":
@@ -71,7 +71,7 @@ public class ProcessManager : MonoBehaviour
                         conditionValue = Convert.ToInt32(condition.param[1]);
                         break;
                     case "ITEM":
-                        value = resourceManager.GetItemNum(Convert.ToInt32(condition.param[0]));
+                        value = resourceManager.HasItem(Convert.ToInt32(condition.param[0])) ? 1 : 0;
                         conditionValue = 1;
                         break;
                     case "CHARACTER":

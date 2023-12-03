@@ -13,14 +13,15 @@ namespace Table
         public int textContent;
         public int exploreNum;
         public int groupId;
-        public int getItem; //获得道具
+        public int itemBoxId; //获得道具
+        public int returnDays;
+        public List<int> failed;
         public List<int> endTextContent;
-        public List<int> hungerChange;
-        public List<int> thirstyChange;
-        public List<int> mindChange;
+        public List<int> branchItem;
         public List<List<int>> itemSets;
         public List<List<Condition>> include;
         public List<List<Condition>> exclude;
+        public List<List<CharacterStatus>> statusChange;
     }
 
     public static class ExploreTable
@@ -40,14 +41,36 @@ namespace Table
                 data.textContent = Convert.ToInt32(rawTable.Get("textContent", row));
                 data.exploreNum = Convert.ToInt32(rawTable.Get("exploreNum", row));
                 data.groupId = Convert.ToInt32(rawTable.Get("groupId", row));
-                data.getItem = Convert.ToInt32(rawTable.Get("getItem", row));
+                data.returnDays = Convert.ToInt32(rawTable.Get("returnDays", row));
+                data.failed = rawTable.GetList<int>("failed", row, "|");
+                data.itemBoxId = Convert.ToInt32(rawTable.Get("getItem", row));
+                data.branchItem = rawTable.GetList<int>("branchItem", row, "|");
                 data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
-                data.hungerChange = rawTable.GetList<int>("hungerChange", row);
-                data.thirstyChange = rawTable.GetList<int>("thirstyChange", row);
-                data.mindChange = rawTable.GetList<int>("mindChange", row);
                 data.itemSets = rawTable.GetList2<int>("itemSet", row);
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
+                data.statusChange = new();
+                List<List<List<int>>> statusChangeRaw = rawTable.GetList3<int>("statusChange", row, "|", "&", ":");
+                statusChangeRaw = new();
+                foreach (var endStatusChangeRaw in statusChangeRaw)
+                {
+                    List<CharacterStatus> endStatusChange = new();
+                    foreach (var changeInfo in endStatusChangeRaw)
+                    {
+                        int characterId = changeInfo[0];
+                        StatusType type = (StatusType)changeInfo[1];
+                        int changeNum = changeInfo[3];
+                        endStatusChange.Add(new()
+                        {
+                            characterId = characterId,
+                            statusValues = new()
+                            {
+                                [type] = changeNum
+                            },
+                        });
+                    }
+                    data.statusChange.Add(endStatusChange);
+                }
             }
         }
     }

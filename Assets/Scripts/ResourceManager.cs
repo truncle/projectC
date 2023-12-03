@@ -1,30 +1,56 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 
+public enum StatusType
+{
+    Hungry, Thirsty, Mind
+}
+
+public enum LiveStatus
+{
+    Normal, Dead, Crazy
+}
+
 public struct CharacterStatus
 {
     public int characterId;
-    public int hungry;
-    public int mind;
-    public int thirsty;
-    public bool isAlive;//是否活着
+    public Dictionary<StatusType, int> statusValues;
+    public LiveStatus liveStatus;//存活状态
+
+    public int GetValue(StatusType type)
+    {
+        return statusValues.GetValueOrDefault(type, 0);
+    }
+
+    public void ChangeValue(StatusType type, int num)
+    {
+        statusValues[type] = statusValues.GetValueOrDefault(type) + num;
+    }
+
+    public void ChangeValue(KeyValuePair<StatusType, int> pair)
+    {
+        ChangeValue(pair.Key, pair.Value);
+    }
 }
 
 //用来管理每轮的资源变更
 public class ResourceManager : MonoBehaviour
 {
     public List<CharacterStatus> characters;
-    public Dictionary<int, int> items;
+    public Dictionary<StatusType, int> resourceValues;
+    public HashSet<int> items;
 
     //回合中暂存, 回合结束同步到资源值中
     public List<CharacterStatus> charactersTemp;
-    public Dictionary<int, int> itemsTemp;
+    public Dictionary<StatusType, int> resourceValuesTemp;
+    public HashSet<int> itemsTemp;
 
     //本日资源分配
-    public Dictionary<int, Dictionary<int, int>> resourceAlloc;
+    public Dictionary<int, Dictionary<StatusType, int>> resourceAlloc;
 
     public void Start()
     {
@@ -37,28 +63,37 @@ public class ResourceManager : MonoBehaviour
     }
 
     //分配资源
-    public bool AllocResource(int characterId, int itemId, int itemNum)
+    public bool AllocResource(int characterId, StatusType type, int num)
     {
-        if (!DeductItem(itemId, itemNum))
+        if (!HasResource(type, num))
             return false;
-        Dictionary<int, int> itemTable = resourceAlloc.GetValueOrDefault(characterId, new Dictionary<int, int>());
-        itemTable.Add(itemId, itemTable.GetValueOrDefault(itemId) + itemNum);
+        if (resourceAlloc.ContainsKey(characterId))
+            resourceAlloc[characterId] = new();
+        Dictionary<StatusType, int> characterAlloc = resourceAlloc[characterId];
+        characterAlloc[type] = characterAlloc.GetValueOrDefault(type) + num;
+        DeductResource(type, num);
         return true;
     }
-    public bool UnallocResource(int characterId, int itemId, int itemNum)
+    public bool UnallocResource(int characterId, StatusType type, int num)
     {
-        Dictionary<int, int> itemTable = resourceAlloc.GetValueOrDefault(characterId, new Dictionary<int, int>());
-        if (itemTable.GetValueOrDefault(itemId) < itemNum)
+        if (resourceAlloc.ContainsKey(characterId))
+            resourceAlloc[characterId] = new();
+        Dictionary<StatusType, int> characterAlloc = resourceAlloc[characterId];
+        if (characterAlloc.GetValueOrDefault(type) < num)
             return false;
-        itemTable.Add(itemId, itemTable.GetValueOrDefault(itemId) - itemNum);
-        AddItem(itemId, itemNum);
+        characterAlloc[type] = characterAlloc.GetValueOrDefault(type) - num;
+        AddResource(type, num);
         return true;
     }
 
     //结算资源分配结果
     public void SettleCurrentDay()
     {
-        //todo 根据资源分配情况改变角色状态
+        //根据资源分配情况改变角色状态
+        foreach (var changeStatus in resourceAlloc)
+        {
+            UpdateCharacter(changeStatus.Key, changeStatus.Value);
+        }
         resourceAlloc.Clear();
     }
 
@@ -66,74 +101,111 @@ public class ResourceManager : MonoBehaviour
     //==================== 常用方法 =======================
 
     //道具是否足够
-    public bool HasEnoughItem(int itemId, int num)
+    public bool HasItem(int itemId)
     {
-        return itemsTemp.GetValueOrDefault(itemId) >= num;
+        return itemsTemp.Contains(itemId);
+    }
+
+    public bool HasItem(HashSet<int> items)
+    {
+        foreach (int itemId in items)
+        {
+            if (!itemsTemp.Contains(itemId))
+                return false;
+        }
+        return true;
     }
 
     //扣除道具
-    public bool DeductItem(Dictionary<int, int> updateList)
+    public bool DeductItem(int itemId)
     {
-        foreach (var itemChange in updateList)
-        {
-            if (!itemsTemp.ContainsKey(itemChange.Key) || itemsTemp[itemChange.Key] - itemChange.Value < 0)
-                return false;
-        }
-        foreach (var itemChange in updateList)
-        {
-            itemsTemp.Add(itemChange.Key, itemsTemp[itemChange.Key] - itemChange.Value);
-        }
+        return itemsTemp.Remove(itemId);
+    }
+
+    public bool DeductItem(HashSet<int> deductItems)
+    {
+        if (!HasItem(deductItems))
+            return false;
+        foreach (var itemId in deductItems)
+            itemsTemp.Remove(itemId);
         return true;
     }
 
     //增加道具
-    public bool AddItem(Dictionary<int, int> updateList)
+    public bool AddItem(int itemId)
     {
-        foreach (var itemChange in updateList)
-        {
-            itemsTemp.Add(itemChange.Key, itemsTemp.GetValueOrDefault(itemChange.Key) + itemChange.Value);
-        }
-        return true;
+        return itemsTemp.Add(itemId);
     }
 
-    public bool DeductItem(int itemId, int num)
+    public HashSet<int> AddItem(HashSet<int> addItems)
     {
-        if (itemsTemp.GetValueOrDefault(itemId) >= num)
+        HashSet<int> result = new();
+        foreach (var itemId in addItems)
         {
-            itemsTemp.Add(itemId, itemsTemp[itemId] - num);
+            if (itemsTemp.Add(itemId))
+                result.Add(itemId);
+        }
+        return result;
+    }
+
+    //修改角色状态, 还需要处理各种状态 < 0时的情况
+    public bool UpdateCharacter(CharacterStatus changeStatus)
+    {
+        CharacterStatus characterStatus = charactersTemp.Where(e => e.characterId == changeStatus.characterId).First();
+        if (characterStatus.liveStatus != LiveStatus.Normal)
+            return false;
+        if (changeStatus.liveStatus != LiveStatus.Normal)
+        {
+            characterStatus.liveStatus = changeStatus.liveStatus;
             return true;
         }
-        else return false;
+        foreach (StatusType statusType in Enum.GetValues(typeof(StatusType)))
+        {
+            if (changeStatus.GetValue(statusType) + characterStatus.GetValue(statusType) < 0)
+                return false;
+        }
+
+        foreach (var changeValue in changeStatus.statusValues)
+        {
+            characterStatus.ChangeValue(changeValue);
+        }
+
+        return true;
     }
 
-    public bool AddItem(int itemId, int num)
+    public bool UpdateCharacter(int characterId, Dictionary<StatusType, int> changeValues)
     {
-        itemsTemp.Add(itemId, itemsTemp.GetValueOrDefault(itemId) + num);
+        return UpdateCharacter(new()
+        {
+            characterId = characterId,
+            statusValues = changeValues,
+        });
+    }
+
+    //资源是否足够
+    public bool HasResource(StatusType type, int num)
+    {
+        return resourceValuesTemp.GetValueOrDefault(type) >= num;
+    }
+
+    public bool DeductResource(StatusType type, int num)
+    {
+        if (!HasResource(type, num))
+            return false;
+        resourceValuesTemp[type] = resourceValuesTemp.GetValueOrDefault(type) - num;
         return true;
     }
 
-    //修改角色状态
-    public bool UpdateCharacter(int characterId, CharacterStatus changeStatus)
+    public void AddResource(StatusType type, int num)
     {
-        CharacterStatus characterStatus = charactersTemp.Where(e => e.characterId == characterId).First();
-        if (changeStatus.hungry + characterStatus.hungry < 0)
-            return false;
-        if (changeStatus.mind + characterStatus.mind < 0)
-            return false;
-        if (changeStatus.thirsty + characterStatus.thirsty < 0)
-            return false;
-
-        changeStatus.hungry += characterStatus.hungry;
-        changeStatus.mind += characterStatus.mind;
-        changeStatus.thirsty += characterStatus.thirsty;
-
-        return true;
+        resourceValuesTemp[type] = resourceValuesTemp.GetValueOrDefault(type) + num;
     }
 
     //将资源变更同步到当前资源
     public void SyncResource()
     {
         characters = new(charactersTemp);
+        resourceValues = new(resourceValuesTemp);
         items = new(itemsTemp);
     }
 
@@ -141,10 +213,5 @@ public class ResourceManager : MonoBehaviour
     public CharacterStatus GetCharacterStatus(int characterId)
     {
         return charactersTemp.Where(e => e.characterId == characterId).First();
-    }
-
-    public int GetItemNum(int itemId)
-    {
-        return itemsTemp.GetValueOrDefault(itemId);
     }
 }

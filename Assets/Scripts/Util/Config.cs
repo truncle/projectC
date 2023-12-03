@@ -8,7 +8,7 @@ namespace Util
 {
     public static class Config
     {
-        public static int ExploreCoolDown = 3;
+        public static int ExploreCoolDown = 2;
 
         public static int GroupBase = 10000;
         public static int GroupNum = 5;

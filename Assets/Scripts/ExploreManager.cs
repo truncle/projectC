@@ -10,9 +10,10 @@ using System.Linq;
 public class ExploreManager : MonoBehaviour
 {
     public int exploreCharacter = 0;
-    public List<int> itemSet = new();
+    public List<int> selectedItemSet = new();
 
     public Dictionary<int, int> lastExploreTime = new();
+    public Dictionary<int, int> characterExploreNum = new();
 
     private ResourceManager resourceManager;
     private ProcessManager processManager;
@@ -31,9 +32,9 @@ public class ExploreManager : MonoBehaviour
         if (!DoExplore)
         {
             //没选人的话返还一下道具
-            foreach (var item in itemSet)
+            foreach (var item in selectedItemSet)
             {
-                resourceManager.AddItem(item, 1);
+                resourceManager.AddItem(item);
             }
             return;
         }
@@ -48,14 +49,13 @@ public class ExploreManager : MonoBehaviour
             && !processManager.CanMeetCondition(e.exclude, false);
         }).ToList();
         var data = pool[Random.Range(0, pool.Count)];
-
     }
 
     //选择探索角色
     public bool SelectCharacter(int characterId)
     {
         //角色状态
-        if (!resourceManager.GetCharacterStatus(characterId).isAlive)
+        if (resourceManager.GetCharacterStatus(characterId).liveStatus != LiveStatus.Normal)
             return false;
         //探索冷却
         if ((processManager.CurrentDay - lastExploreTime.GetValueOrDefault(characterId)) < Config.ExploreCoolDown)
@@ -74,16 +74,16 @@ public class ExploreManager : MonoBehaviour
 
     public bool SelectItem(int itemId)
     {
-        bool result = resourceManager.DeductItem(itemId, 1);
+        bool result = resourceManager.DeductItem(itemId);
         if (result)
-            itemSet.Add(itemId);
+            selectedItemSet.Add(itemId);
         return result;
     }
 
     public void UnselectItem(int itemId)
     {
-        if (itemSet.Remove(itemId))
-            resourceManager.AddItem(itemId, 1);
+        if (selectedItemSet.Remove(itemId))
+            resourceManager.AddItem(itemId);
     }
 
 }
