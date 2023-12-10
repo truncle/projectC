@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Table;
 using UnityEngine;
 
 
@@ -59,7 +60,25 @@ public class ResourceManager : MonoBehaviour
     //初始化基本资源值
     public void Init()
     {
+        characters = new()
+        {
+            new() { characterId = 1, statusValues = new() },
+            new() { characterId = 2, statusValues = new() },
+            new() { characterId = 3, statusValues = new() },
+            new() { characterId = 4, statusValues = new() },
+        };
+        resourceValues = new();
+        items = new();
 
+        charactersTemp = new()
+        {
+            new() { characterId = 1, statusValues = new() },
+            new() { characterId = 2, statusValues = new() },
+            new() { characterId = 3, statusValues = new() },
+            new() { characterId = 4, statusValues = new() },
+        };
+        resourceValuesTemp = new();
+        itemsTemp = new();
     }
 
     //分配资源
@@ -204,7 +223,17 @@ public class ResourceManager : MonoBehaviour
     //将资源变更同步到当前资源
     public void SyncResource()
     {
-        characters = new(charactersTemp);
+        characters = new();
+        foreach (var characterInfo in charactersTemp)
+        {
+            characters.Add(
+                new()
+                {
+                    characterId = characterInfo.characterId,
+                    statusValues = new(characterInfo.statusValues),
+                    liveStatus = characterInfo.liveStatus,
+                });
+        }
         resourceValues = new(resourceValuesTemp);
         items = new(itemsTemp);
     }
@@ -214,4 +243,13 @@ public class ResourceManager : MonoBehaviour
     {
         return charactersTemp.Where(e => e.characterId == characterId).First();
     }
+
+    //获取道具箱中的道具
+    public List<int> GetItembox(int itemboxId)
+    {
+        List<int> items = ItemboxTable.Get(itemboxId).GetItems();
+        AddItem(new HashSet<int>(items));
+        return items;
+    }
+
 }

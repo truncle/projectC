@@ -19,14 +19,26 @@ namespace Util
 
         public static List<List<Table.Condition>> GetConditionSet(string str)
         {
+            if (string.IsNullOrEmpty(str))
+                return new();
             List<List<Table.Condition>> result = new();
             string[] orArr = str.Split("|");
             for (int i = 0; i < orArr.Length; i++)
             {
+                if (string.IsNullOrEmpty(orArr[i]))
+                {
+                    Debug.Log("condition error");
+                    continue;
+                }
                 List<Table.Condition> andList = new();
                 string[] andArr = orArr[i].Split("&");
                 for (int j = 0; j < andArr.Length; j++)
                 {
+                    if (string.IsNullOrEmpty(andArr[j]))
+                    {
+                        Debug.Log("condition error");
+                        continue;
+                    }
                     andList.Add(GetCondition(andArr[j]));
                 }
                 result.Add(andList);
@@ -68,6 +80,7 @@ namespace Util
             while ((line = reader.ReadLine()) != null)
             {
                 List<string> lineData = new(line.Split(","));
+                data.Add(lineData);
             }
             return new Table.RawTable
             {

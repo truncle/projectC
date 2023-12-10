@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Util;
 
 namespace Table
@@ -31,7 +32,7 @@ namespace Table
         {
             if (datas.Any())
                 return;
-            RawTable rawTable = GameUtil.ReadCsvTable("EventStory.csv");
+            RawTable rawTable = GameUtil.ReadCsvTable("eventStory.csv");
             foreach (var row in rawTable.data)
             {
                 EventStoryData data = new();
@@ -40,14 +41,19 @@ namespace Table
                 data.eventType = Convert.ToInt32(rawTable.Get("eventType", row));
                 data.branchItem = rawTable.GetList<int>("branchItem", row);
                 data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
-                data.days = rawTable.GetList<int>("days", row, "|");
-                data.itemSets = rawTable.GetList2<int>("itemSets", row);
+                data.days = new();
+                List<List<int>> daySpans = rawTable.GetList2<int>("day", row, "|");
+                foreach (var daySpan in daySpans)
+                {
+                    for (int day = daySpan[0]; day <= daySpan[1]; day++)
+                        data.days.Add(day);
+                }
+                data.itemSets = rawTable.GetList2<int>("itemSet", row);
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
                 data.priorityBranch = GameUtil.GetConditionSet(rawTable.Get("priorityBranch", row));
                 data.statusChange = new();
-                List<List<List<int>>> statusChangeRaw = rawTable.GetList3<int>("statusChange", row, "|", "&", ":");
-                statusChangeRaw = new();
+                List<List<List<int>>> statusChangeRaw = rawTable.GetList3<int>("statesChange", row, "|", "&", ":");
                 foreach (var endStatusChangeRaw in statusChangeRaw)
                 {
                     List<CharacterStatus> endStatusChange = new();
@@ -55,7 +61,7 @@ namespace Table
                     {
                         int characterId = changeInfo[0];
                         StatusType type = (StatusType)changeInfo[1];
-                        int changeNum = changeInfo[3];
+                        int changeNum = changeInfo[2];
                         endStatusChange.Add(new()
                         {
                             characterId = characterId,
@@ -67,6 +73,7 @@ namespace Table
                     }
                     data.statusChange.Add(endStatusChange);
                 }
+                datas.Add(data);
             }
         }
     }

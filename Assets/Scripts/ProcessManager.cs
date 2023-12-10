@@ -18,6 +18,7 @@ public class ProcessManager : MonoBehaviour
     //游戏中的各种记录
     public List<DayRecord> dayRecord = new();
     public Dictionary<int, int> storylineRecord = new();
+    public Dictionary<int, int> exploreRecord = new();
 
     public void Start()
     {
@@ -25,11 +26,31 @@ public class ProcessManager : MonoBehaviour
         storylineManager = GetComponent<StorylineManager>();
         resourceManager = GetComponent<ResourceManager>();
         exploreManager = GetComponent<ExploreManager>();
+        resourceManager.Init();
+    }
+
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+            InitCurrentDay();
+        else if (Input.GetKeyDown(KeyCode.W))
+        {
+            EndCurrentDay();
+        }
+        else if (Input.GetKeyDown(KeyCode.Z))
+        {
+            storylineManager.Select(1);
+        }
+        else if (Input.GetKeyDown(KeyCode.E))
+        {
+            exploreManager.SelectCharacter(1);
+            exploreManager.CheckStartExplore();
+        }
     }
 
     public void InitCurrentDay()
     {
-        resourceManager.Init();
+        Debug.Log("Init day" + CurrentDay);
         storylineManager.InitDayStoryline(CurrentDay);
     }
 
@@ -38,6 +59,9 @@ public class ProcessManager : MonoBehaviour
     {
         if (!storylineManager.IsChecked)
             return false;
+        Debug.Log("End day " + CurrentDay);
+        storylineManager.SettleCurrentDay();
+        resourceManager.SyncResource();
         CurrentDay += 1;
         return true;
     }
@@ -104,4 +128,9 @@ public class ProcessManager : MonoBehaviour
         storylineRecord.Add(id, result);
     }
 
+    //保存探索结果
+    public void SaveExploreResult(int id, int result)
+    {
+        exploreRecord.Add(id, result);
+    }
 }

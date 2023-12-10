@@ -32,13 +32,12 @@ public class StorylineManager : MonoBehaviour
     {
         ClearDayData();
         //首次筛选, 筛出所有满足条件的事件
-        List<EventStoryData> pool1 = EventStoryTable.datas.Where((EventStoryData e) =>
-        {
+        List<EventStoryData> pool1 = EventStoryTable.datas.Where(e =>
             //根据include和exclude筛选
-            return e.days.Contains(day)
+            e.days.Contains(day)
             && processManager.CanMeetCondition(e.include)
-            && !processManager.CanMeetCondition(e.exclude, false);
-        }).ToList();
+            && !processManager.CanMeetCondition(e.exclude, false)
+        ).ToList();
 
         //二次筛选, 根据优先条件进行筛选
         List<EventStoryData> pool2 = pool1.Where((EventStoryData e) =>
@@ -60,6 +59,7 @@ public class StorylineManager : MonoBehaviour
         option = 0;
         itemSet.Clear();
         IsChecked = false;
+        isSettled = false;
     }
 
     //结算当前事件结果
@@ -75,15 +75,18 @@ public class StorylineManager : MonoBehaviour
                 resultIndex = i + 1;
             }
         }
-        //todo 根据结果提供奖励, 需要知道资源提供对象
-        //CurrentData.itemBoxId
+        //根据结果提供奖励, 道具和资源变化
         foreach (var statusChange in CurrentData.statusChange[resultIndex])
         {
             resourceManager.UpdateCharacter(statusChange);
         }
+        //resourceManager.GetItembox(CurrentData.branchItem[resultIndex]);
+        resourceManager.GetItembox(100002);
 
         isSettled = true;
+        processManager.SaveStorylineResult(CurrentData.id, resultIndex);
         //todo 更新事件结果的显示
+        ShowStoryData(CurrentData, resultIndex);
     }
 
     public void Select(int option)
@@ -104,13 +107,16 @@ public class StorylineManager : MonoBehaviour
     {
         if (itemSet.Remove(itemId))
             resourceManager.AddItem(itemId);
-
     }
 
     //展示
-    private void ShowStoryData(EventStoryData storyData)
+    private void ShowStoryData(EventStoryData storyData, int end = -1)
     {
         Debug.Log("Show story data id: " + storyData.id);
+        if (end >= 0)
+            Debug.Log(string.Format("end{0}, endText:{1}", end, TextTable.GetText(storyData.endTextContent[end])));
+        else
+            Debug.Log(string.Format("init story text:{0}", TextTable.GetText(storyData.textContent)));
     }
 
 }

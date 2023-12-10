@@ -33,7 +33,7 @@ namespace Table
         {
             if (datas.Any())
                 return;
-            RawTable rawTable = GameUtil.ReadCsvTable("EventExplory.csv");
+            RawTable rawTable = GameUtil.ReadCsvTable("eventExplory.csv");
             foreach (var row in rawTable.data)
             {
                 ExploreData data = new();
@@ -50,8 +50,7 @@ namespace Table
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
                 data.statusChange = new();
-                List<List<List<int>>> statusChangeRaw = rawTable.GetList3<int>("statusChange", row, "|", "&", ":");
-                statusChangeRaw = new();
+                List<List<List<int>>> statusChangeRaw = rawTable.GetList3<int>("statesChange", row, "|", "&", ":");
                 foreach (var endStatusChangeRaw in statusChangeRaw)
                 {
                     List<CharacterStatus> endStatusChange = new();
@@ -59,7 +58,7 @@ namespace Table
                     {
                         int characterId = changeInfo[0];
                         StatusType type = (StatusType)changeInfo[1];
-                        int changeNum = changeInfo[3];
+                        int changeNum = changeInfo[2];
                         endStatusChange.Add(new()
                         {
                             characterId = characterId,
@@ -71,6 +70,7 @@ namespace Table
                     }
                     data.statusChange.Add(endStatusChange);
                 }
+                datas.Add(data);
             }
         }
     }
