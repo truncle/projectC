@@ -13,6 +13,6 @@ public class GameInterface : MonoBehaviour
 
     public void ClickButton(string operation)
     {
-        GameEventSystem.Instance.SendUIEvent(operation);
+        //GameEventSystem.Instance.SendUIEvent(operation);
     }
 }

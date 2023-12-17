@@ -18,6 +18,7 @@ public class StorylineManager : MonoBehaviour
 
     private ResourceManager resourceManager;
     private ProcessManager processManager;
+    private ContentManager contentManager;
 
     private bool isSettled = false;
 
@@ -26,6 +27,7 @@ public class StorylineManager : MonoBehaviour
         EventStoryTable.Init();
         resourceManager = GetComponent<ResourceManager>();
         processManager = GetComponent<ProcessManager>();
+        contentManager = GetComponent<ContentManager>();
     }
 
     public void InitDayStoryline(int day)
@@ -113,10 +115,19 @@ public class StorylineManager : MonoBehaviour
     private void ShowStoryData(EventStoryData storyData, int end = -1)
     {
         Debug.Log("Show story data id: " + storyData.id);
+        string pushText;
         if (end >= 0)
-            Debug.Log(string.Format("end{0}, endText:{1}", end, TextTable.GetText(storyData.endTextContent[end])));
+        {
+            pushText = TextTable.GetText(storyData.endTextContent[end]);
+            Debug.Log(string.Format("end{0}, endText:{1}", end, pushText));
+        }
         else
-            Debug.Log(string.Format("init story text:{0}", TextTable.GetText(storyData.textContent)));
+        {
+            pushText = TextTable.GetText(storyData.textContent);
+            Debug.Log(string.Format("init story text:{0}", pushText));
+            contentManager.PushContent("story text: " + TextTable.GetText(storyData.textContent));
+        }
+        contentManager.PushContent("story text: " + pushText);
     }
 
 }

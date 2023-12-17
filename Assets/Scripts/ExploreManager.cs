@@ -75,7 +75,7 @@ public class ExploreManager : MonoBehaviour
         groupExploreNum[groupId] = exploreNum + 1;
         ClearData();
         //todo 更新事件结果的显示
-        ShowExploreData(data, resultIndex);
+        //ShowExploreData(data, resultIndex);
     }
     private void ClearData()
     {

@@ -15,6 +15,7 @@ public class ProcessManager : MonoBehaviour
     private StorylineManager storylineManager;
     private ExploreManager exploreManager;
     private ResourceManager resourceManager;
+    private ContentManager contentManager;
 
     //游戏中的各种记录
     public List<DayRecord> dayRecord = new();
@@ -27,9 +28,8 @@ public class ProcessManager : MonoBehaviour
         storylineManager = GetComponent<StorylineManager>();
         resourceManager = GetComponent<ResourceManager>();
         exploreManager = GetComponent<ExploreManager>();
+        contentManager = GetComponent<ContentManager>();
         resourceManager.Init();
-
-        GameEventSystem.Instance.UIEvent += TestButtonClick;
     }
 
     public void Update()
@@ -55,6 +55,7 @@ public class ProcessManager : MonoBehaviour
     {
         Debug.Log("Init day" + CurrentDay);
         storylineManager.InitDayStoryline(CurrentDay);
+        contentManager.Sync();
     }
 
     //需要检查所有强制选项是否选择完毕
@@ -66,6 +67,7 @@ public class ProcessManager : MonoBehaviour
         storylineManager.SettleCurrentDay();
         resourceManager.SyncResource();
         CurrentDay += 1;
+        contentManager.Sync();
         return true;
     }
 
@@ -137,8 +139,4 @@ public class ProcessManager : MonoBehaviour
         exploreRecord.Add(id, result);
     }
 
-    public void TestButtonClick(UIEvent ue)
-    {
-        Debug.Log(ue.ToString());
-    }
 }
