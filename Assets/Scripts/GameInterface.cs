@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Util;
 
 public class GameInterface : MonoBehaviour
 {
@@ -10,8 +11,8 @@ public class GameInterface : MonoBehaviour
         gameManager = GameManager.Instance;
     }
 
-    public void ClickButton()
+    public void ClickButton(string operation)
     {
-        gameManager.OnButtonClick();
+        GameEventSystem.Instance.SendUIEvent(operation);
     }
 }

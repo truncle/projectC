@@ -47,9 +47,4 @@ public class GameManager : MonoBehaviour
 	private void LoadTables()
 	{
 	}
-
-	public void OnButtonClick()
-	{
-		Debug.Log("Click Button");
-	}
 }

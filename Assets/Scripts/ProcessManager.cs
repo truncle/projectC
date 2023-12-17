@@ -4,6 +4,7 @@ using UnityEngine;
 using Table;
 using System;
 using System.Linq;
+using Util;
 
 //用来管理回合切换逻辑, 统计处理汇总各个模块的结果并保存记录
 public class ProcessManager : MonoBehaviour
@@ -27,6 +28,8 @@ public class ProcessManager : MonoBehaviour
         resourceManager = GetComponent<ResourceManager>();
         exploreManager = GetComponent<ExploreManager>();
         resourceManager.Init();
+
+        GameEventSystem.Instance.UIEvent += TestButtonClick;
     }
 
     public void Update()
@@ -132,5 +135,10 @@ public class ProcessManager : MonoBehaviour
     public void SaveExploreResult(int id, int result)
     {
         exploreRecord.Add(id, result);
+    }
+
+    public void TestButtonClick(UIEvent ue)
+    {
+        Debug.Log(ue.ToString());
     }
 }
