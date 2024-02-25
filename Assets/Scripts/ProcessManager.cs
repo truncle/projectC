@@ -51,20 +51,19 @@ public class ProcessManager : MonoBehaviour
         }
     }
 
+    //初始化当天的数据, 之后同步显示内容
     public void InitCurrentDay()
     {
         Debug.Log("Init day" + CurrentDay);
-        storylineManager.InitDayStoryline(CurrentDay);
+        storylineManager.InitStoryline(CurrentDay);
         contentManager.Sync();
     }
 
-    //需要检查所有强制选项是否选择完毕
+    //结算当天的各种选择和事件
     public bool EndCurrentDay()
     {
-        if (!storylineManager.IsChecked)
-            return false;
         Debug.Log("End day " + CurrentDay);
-        storylineManager.SettleCurrentDay();
+        storylineManager.SettleSotryline();
         resourceManager.SyncResource();
         CurrentDay += 1;
         contentManager.Sync();

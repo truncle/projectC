@@ -8,7 +8,10 @@ public class ContentManager : MonoBehaviour
 {
     private TextMeshProUGUI JournalTextUI;
 
+    //这里包含界面显示需要的所有信息, 需要打包进存档
     private string journalText = "JournalText";
+
+    private string storylineText = "stroylineText";
 
     private void Start()
     {

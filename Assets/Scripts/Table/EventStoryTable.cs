@@ -21,6 +21,7 @@ namespace Table
         public List<List<Condition>> exclude;
         public List<List<Condition>> priorityBranch;
         public List<List<CharacterStatus>> statusChange;
+        public List<List<int>> resourceChange; // todo
     }
 
     public static class EventStoryTable
@@ -52,6 +53,7 @@ namespace Table
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
                 data.priorityBranch = GameUtil.GetConditionSet(rawTable.Get("priorityBranch", row));
+                data.resourceChange = rawTable.GetList2<int>("resChange", row);
                 data.statusChange = new();
                 List<List<List<int>>> statusChangeRaw = rawTable.GetList3<int>("statesChange", row, "|", "&", ":");
                 foreach (var endStatusChangeRaw in statusChangeRaw)

@@ -5,6 +5,10 @@ using System.Linq;
 using Table;
 using UnityEngine;
 
+public enum ResourceType
+{
+    Food, Water,
+}
 
 public enum StatusType
 {
@@ -42,16 +46,16 @@ public struct CharacterStatus
 public class ResourceManager : MonoBehaviour
 {
     public List<CharacterStatus> characters;
-    public Dictionary<StatusType, int> resourceValues;
+    public Dictionary<ResourceType, int> resourceValues;
     public HashSet<int> items;
 
     //回合中暂存, 回合结束同步到资源值中
     public List<CharacterStatus> charactersTemp;
-    public Dictionary<StatusType, int> resourceValuesTemp;
+    public Dictionary<ResourceType, int> resourceValuesTemp;
     public HashSet<int> itemsTemp;
 
     //本日资源分配
-    public Dictionary<int, Dictionary<StatusType, int>> resourceAlloc;
+    public Dictionary<int, Dictionary<ResourceType, int>> resourceAlloc;
 
     public void Start()
     {
@@ -82,22 +86,22 @@ public class ResourceManager : MonoBehaviour
     }
 
     //分配资源
-    public bool AllocResource(int characterId, StatusType type, int num)
+    public bool AllocResource(int characterId, ResourceType type, int num)
     {
         if (!HasResource(type, num))
             return false;
         if (resourceAlloc.ContainsKey(characterId))
             resourceAlloc[characterId] = new();
-        Dictionary<StatusType, int> characterAlloc = resourceAlloc[characterId];
+        Dictionary<ResourceType, int> characterAlloc = resourceAlloc[characterId];
         characterAlloc[type] = characterAlloc.GetValueOrDefault(type) + num;
         DeductResource(type, num);
         return true;
     }
-    public bool UnallocResource(int characterId, StatusType type, int num)
+    public bool UnallocResource(int characterId, ResourceType type, int num)
     {
         if (resourceAlloc.ContainsKey(characterId))
             resourceAlloc[characterId] = new();
-        Dictionary<StatusType, int> characterAlloc = resourceAlloc[characterId];
+        Dictionary<ResourceType, int> characterAlloc = resourceAlloc[characterId];
         if (characterAlloc.GetValueOrDefault(type) < num)
             return false;
         characterAlloc[type] = characterAlloc.GetValueOrDefault(type) - num;
@@ -109,9 +113,14 @@ public class ResourceManager : MonoBehaviour
     public void SettleCurrentDay()
     {
         //根据资源分配情况改变角色状态
-        foreach (var changeStatus in resourceAlloc)
+        foreach (var characterRes in resourceAlloc)
         {
-            UpdateCharacter(changeStatus.Key, changeStatus.Value);
+            Dictionary<StatusType, int> changeStatus = new();
+            foreach (var res in characterRes.Value)
+            {
+                changeStatus.Add((StatusType)res.Key, res.Value);
+            }
+            UpdateCharacter(characterRes.Key, changeStatus);
         }
         resourceAlloc.Clear();
     }
@@ -202,12 +211,12 @@ public class ResourceManager : MonoBehaviour
     }
 
     //资源是否足够
-    public bool HasResource(StatusType type, int num)
+    public bool HasResource(ResourceType type, int num)
     {
         return resourceValuesTemp.GetValueOrDefault(type) >= num;
     }
 
-    public bool DeductResource(StatusType type, int num)
+    public bool DeductResource(ResourceType type, int num)
     {
         if (!HasResource(type, num))
             return false;
@@ -215,7 +224,7 @@ public class ResourceManager : MonoBehaviour
         return true;
     }
 
-    public void AddResource(StatusType type, int num)
+    public void AddResource(ResourceType type, int num)
     {
         resourceValuesTemp[type] = resourceValuesTemp.GetValueOrDefault(type) + num;
     }

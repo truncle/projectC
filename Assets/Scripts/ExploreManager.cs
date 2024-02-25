@@ -7,18 +7,35 @@ using System.Linq;
 
 //用于判断和控制故事探索内容
 
+public enum ExploreState
+{
+    Idle, Start, Exploring,
+}
+
+
 public class ExploreManager : MonoBehaviour
 {
+    private ResourceManager resourceManager;
+    private ProcessManager processManager;
+
+    //探索状态
+    public ExploreState exploreState = ExploreState.Idle;
+    public bool PrepareExplore { get; set; } = false;
+    public bool DoExplore { get; private set; }
+    //已选择的组别和选中的组别
+    public HashSet<int> groupSet = new();
+    public int selectedGroup = 0;
+
+    //探索中信息
+    public ExploreData exploreData;
     public int exploreCharacter = 0;
     public List<int> selectedItemSet = new();
+    public int exploreDay = 0;
+    public int exploreReturnDay = 7;
 
     public Dictionary<int, int> lastExploreTime = new();
     public Dictionary<int, int> groupExploreNum = new();
 
-    private ResourceManager resourceManager;
-    private ProcessManager processManager;
-
-    public bool DoExplore { get; private set; }
 
     void Start()
     {
@@ -27,8 +44,21 @@ public class ExploreManager : MonoBehaviour
         processManager = GetComponent<ProcessManager>();
     }
 
+    //结算当天的探索系统
+    public void SettleDayExplore()
+    {
+        if (exploreState == ExploreState.Idle && PrepareExplore)
+        {
+            exploreState = ExploreState.Start;
+            PrepareExplore = false;
+        }
+        else if (exploreState == ExploreState.Start)
+            CheckStartExplore();
+        else if (exploreState == ExploreState.Start)
+            CheckEndExplore();
+    }
 
-    //检查探索开始和结算
+    //检查探索开始
     public void CheckStartExplore()
     {
         if (!DoExplore)
@@ -38,11 +68,20 @@ public class ExploreManager : MonoBehaviour
             {
                 resourceManager.AddItem(item);
             }
+            exploreState = ExploreState.Idle;
             return;
         }
 
         //筛出所有满足条件的探索项
-        int groupId = Config.GroupBase + Random.Range(1, Config.GroupNum);
+        int groupId = selectedGroup;
+        if (groupId == 0)
+        {
+            while (groupSet.Contains(groupId))
+            {
+                groupId = Config.GroupBase + Random.Range(1, Config.GroupNum + 1);
+            }
+        }
+        int exploreReturnDay = Random.Range(6, 9);//todo 配置
         int exploreNum = groupExploreNum.GetValueOrDefault(groupId);
         List<ExploreData> pool = ExploreTable.datas.Where(e =>
         {
@@ -52,12 +91,23 @@ public class ExploreManager : MonoBehaviour
             && processManager.CanMeetCondition(e.include)
             && !processManager.CanMeetCondition(e.exclude, false);
         }).ToList();
-        var data = pool[Random.Range(0, pool.Count)];
+        exploreData = pool[Random.Range(0, pool.Count)];
 
+        DoExplore = false;
+
+        //todo 更新事件结果的显示
+        //ShowExploreData(data, resultIndex);
+    }
+
+    //检查探索结束
+    public void CheckEndExplore()
+    {
+        if (exploreDay < exploreReturnDay)
+            return;
         int resultIndex = 0;
-        for (int i = 0; i < data.itemSets.Count; i++)
+        for (int i = 0; i < exploreData.itemSets.Count; i++)
         {
-            if (GameUtil.ListContains(selectedItemSet, data.itemSets[i]))
+            if (GameUtil.ListContains(selectedItemSet, exploreData.itemSets[i]))
             {
                 resultIndex = i + 1;
             }
@@ -69,21 +119,27 @@ public class ExploreManager : MonoBehaviour
         //    resourceManager.UpdateCharacter(statusChange);
         //}
         //resourceManager.GetItembox(data.branchItem[resultIndex]);
-        resourceManager.GetItembox(data.itemBoxId);
+        resourceManager.GetItembox(exploreData.itemBoxId);
 
-        processManager.SaveExploreResult(data.id, resultIndex);
-        groupExploreNum[groupId] = exploreNum + 1;
+        processManager.SaveExploreResult(exploreData.id, resultIndex);
+        int exploreNum = groupExploreNum.GetValueOrDefault(exploreData.groupId);
+        groupExploreNum[exploreData.groupId] = exploreNum + 1;
         ClearData();
         //todo 更新事件结果的显示
         //ShowExploreData(data, resultIndex);
     }
+
     private void ClearData()
     {
         exploreCharacter = 0;
         selectedItemSet.Clear();
+        exploreDay = 0;
         DoExplore = false;
+        PrepareExplore = false;
+        exploreState = ExploreState.Idle;
     }
 
+    //--------------玩家操作--------------
     //选择探索角色
     public bool SelectCharacter(int characterId)
     {
@@ -117,6 +173,11 @@ public class ExploreManager : MonoBehaviour
     {
         if (selectedItemSet.Remove(itemId))
             resourceManager.AddItem(itemId);
+    }
+
+    public void SelectGroup(int groupId)
+    {
+        selectedGroup = groupId;
     }
 
     //展示

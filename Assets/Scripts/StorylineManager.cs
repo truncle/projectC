@@ -11,7 +11,7 @@ public class StorylineManager : MonoBehaviour
 {
     public EventStoryData CurrentData;
 
-    //每天的决策数据
+    //这个事件的决策数据
     public int option = 0;
     public List<int> itemSet = new();
     public bool IsChecked { get; private set; }
@@ -19,8 +19,6 @@ public class StorylineManager : MonoBehaviour
     private ResourceManager resourceManager;
     private ProcessManager processManager;
     private ContentManager contentManager;
-
-    private bool isSettled = false;
 
     void Start()
     {
@@ -30,9 +28,9 @@ public class StorylineManager : MonoBehaviour
         contentManager = GetComponent<ContentManager>();
     }
 
-    public void InitDayStoryline(int day)
+    public void InitStoryline(int day)
     {
-        ClearDayData();
+        ClearData();
         //首次筛选, 筛出所有满足条件的事件
         List<EventStoryData> pool1 = EventStoryTable.datas.Where(e =>
             //根据include和exclude筛选
@@ -53,22 +51,23 @@ public class StorylineManager : MonoBehaviour
             CurrentData = pool2[Random.Range(0, pool2.Count)];
         else CurrentData = pool1[Random.Range(0, pool1.Count)];
         IsChecked = CurrentData.endTextContent.Count <= 1;
+
+        //将初始化好的数据填充到ContentManager中等待显示
         ShowStoryData(CurrentData);
     }
 
-    private void ClearDayData()
+
+    //清除当前事件所有信息
+    private void ClearData()
     {
         option = 0;
         itemSet.Clear();
         IsChecked = false;
-        isSettled = false;
     }
 
     //结算当前事件结果
-    public void SettleCurrentDay()
+    public void SettleSotryline()
     {
-        if (isSettled)
-            return;
         int resultIndex = option;
         for (int i = 0; i < CurrentData.itemSets.Count; i++)
         {
@@ -85,9 +84,8 @@ public class StorylineManager : MonoBehaviour
         //resourceManager.GetItembox(CurrentData.branchItem[resultIndex]);
         resourceManager.GetItembox(100002);
 
-        isSettled = true;
         processManager.SaveStorylineResult(CurrentData.id, resultIndex);
-        //todo 更新事件结果的显示
+        //将初始化好的数据填充到ContentManager中等待显示
         ShowStoryData(CurrentData, resultIndex);
     }
 
