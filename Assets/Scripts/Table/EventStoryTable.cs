@@ -11,17 +11,19 @@ namespace Table
     public struct EventStoryData
     {
         public int id;
-        public int textContent;
+        public int textContent; //事件出现时的文本
         public int eventType;
-        public List<int> branchItem;
-        public List<int> endTextContent;
-        public List<int> days;
-        public List<List<int>> itemSets;
+        public List<int> day;
+        public List<int> provideItem; //可以提供的道具
+        public List<List<int>> provideRes; //可选提供的资源
+        public List<int> endTextContent; //事件结束文本
+        public List<List<int>> getItem;
+        public List<List<List<int>>> getRes;
+        public List<List<List<int>>> lostRes;
+        public List<List<int>> statusChange; // 状态改变
         public List<List<Condition>> include;
         public List<List<Condition>> exclude;
         public List<List<Condition>> priorityBranch;
-        public List<List<CharacterStatus>> statusChange;
-        public List<List<int>> resourceChange; // todo
     }
 
     public static class EventStoryTable
@@ -40,41 +42,23 @@ namespace Table
                 data.id = Convert.ToInt32(rawTable.Get("id", row));
                 data.textContent = Convert.ToInt32(rawTable.Get("textContent", row));
                 data.eventType = Convert.ToInt32(rawTable.Get("eventType", row));
-                data.branchItem = rawTable.GetList<int>("branchItem", row);
-                data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
-                data.days = new();
-                List<List<int>> daySpans = rawTable.GetList2<int>("day", row, "|");
-                foreach (var daySpan in daySpans)
-                {
+                data.day = new();
+                List<int> daySpan = rawTable.GetList<int>("day", row, "|");
+                if (daySpan.Count == 1)
+                    data.day.Add(daySpan[0]);
+                else
                     for (int day = daySpan[0]; day <= daySpan[1]; day++)
-                        data.days.Add(day);
-                }
-                data.itemSets = rawTable.GetList2<int>("itemSet", row);
+                        data.day.Add(day);
+                data.provideItem = rawTable.GetList<int>("provideItem", row);
+                data.provideRes = rawTable.GetList2<int>("provideRes", row);
+                data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
+                data.getItem = rawTable.GetList2<int>("getItem", row);
+                data.getRes = rawTable.GetList3<int>("getRes", row);
+                data.lostRes = rawTable.GetList3<int>("lostRes", row);
+                data.statusChange = rawTable.GetList2<int>("statusChange", row);
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
                 data.priorityBranch = GameUtil.GetConditionSet(rawTable.Get("priorityBranch", row));
-                data.resourceChange = rawTable.GetList2<int>("resChange", row);
-                data.statusChange = new();
-                List<List<List<int>>> statusChangeRaw = rawTable.GetList3<int>("statesChange", row, "|", "&", ":");
-                foreach (var endStatusChangeRaw in statusChangeRaw)
-                {
-                    List<CharacterStatus> endStatusChange = new();
-                    foreach (var changeInfo in endStatusChangeRaw)
-                    {
-                        int characterId = changeInfo[0];
-                        StatusType type = (StatusType)changeInfo[1];
-                        int changeNum = changeInfo[2];
-                        endStatusChange.Add(new()
-                        {
-                            characterId = characterId,
-                            statusValues = new()
-                            {
-                                [type] = changeNum
-                            },
-                        });
-                    }
-                    data.statusChange.Add(endStatusChange);
-                }
                 datas.Add(data);
             }
         }

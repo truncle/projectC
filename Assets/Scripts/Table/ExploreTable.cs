@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Util;
+using UnityEngine;
 
 namespace Table
 {
@@ -13,15 +15,15 @@ namespace Table
         public int textContent;
         public int exploreNum;
         public int groupId;
-        public int itemBoxId; //获得道具
         public int returnDays;
-        public List<int> failed;
         public List<int> endTextContent;
-        public List<int> branchItem;
-        public List<List<int>> itemSets;
+        public List<int> failRate; //对应角色的探索失败率
+        public List<int> provideItem; //可以提供的道具
+        public List<int> getItem;
+        public List<List<List<int>>> getRes;
+        public List<List<int>> statusChange;
         public List<List<Condition>> include;
         public List<List<Condition>> exclude;
-        public List<List<CharacterStatus>> statusChange;
     }
 
     public static class ExploreTable
@@ -42,34 +44,14 @@ namespace Table
                 data.exploreNum = Convert.ToInt32(rawTable.Get("exploreNum", row));
                 data.groupId = Convert.ToInt32(rawTable.Get("groupId", row));
                 data.returnDays = Convert.ToInt32(rawTable.Get("returnDays", row));
-                data.failed = rawTable.GetList<int>("failed", row, "|");
-                data.itemBoxId = Convert.ToInt32(rawTable.Get("getItem", row));
-                data.branchItem = rawTable.GetList<int>("branchItem", row, "|");
                 data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
-                data.itemSets = rawTable.GetList2<int>("itemSet", row);
+                data.failRate = rawTable.GetList<int>("failRate", row, "|");
+                data.provideItem = rawTable.GetList<int>("provideItem", row, "|");
+                data.getItem = rawTable.GetList<int>("getItem", row, "|");
+                data.getRes = rawTable.GetList3<int>("getRes", row, "|");
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
-                data.statusChange = new();
-                List<List<List<int>>> statusChangeRaw = rawTable.GetList3<int>("statesChange", row, "|", "&", ":");
-                foreach (var endStatusChangeRaw in statusChangeRaw)
-                {
-                    List<CharacterStatus> endStatusChange = new();
-                    foreach (var changeInfo in endStatusChangeRaw)
-                    {
-                        int characterId = changeInfo[0];
-                        StatusType type = (StatusType)changeInfo[1];
-                        int changeNum = changeInfo[2];
-                        endStatusChange.Add(new()
-                        {
-                            characterId = characterId,
-                            statusValues = new()
-                            {
-                                [type] = changeNum
-                            },
-                        });
-                    }
-                    data.statusChange.Add(endStatusChange);
-                }
+                data.statusChange = rawTable.GetList2<int>("statusChange", row, "|");
                 datas.Add(data);
             }
         }

@@ -12,6 +12,11 @@ public enum ExploreState
     Idle, Start, Exploring,
 }
 
+public enum ExploreResult
+{
+    Failed, Normal, Success, SuperSuccess
+}
+
 
 public class ExploreManager : MonoBehaviour
 {
@@ -29,9 +34,8 @@ public class ExploreManager : MonoBehaviour
     //探索中信息
     public ExploreData exploreData;
     public int exploreCharacter = 0;
-    public List<int> selectedItemSet = new();
+    public int carryItem = 0;
     public int exploreDay = 0;
-    public int exploreReturnDay = 7;
 
     public Dictionary<int, int> lastExploreTime = new();
     public Dictionary<int, int> groupExploreNum = new();
@@ -64,10 +68,8 @@ public class ExploreManager : MonoBehaviour
         if (!DoExplore)
         {
             //没选人的话返还一下道具
-            foreach (var item in selectedItemSet)
-            {
-                resourceManager.AddItem(item);
-            }
+            if (carryItem > 0)
+                resourceManager.AddItem(carryItem);
             exploreState = ExploreState.Idle;
             return;
         }
@@ -102,24 +104,23 @@ public class ExploreManager : MonoBehaviour
     //检查探索结束
     public void CheckEndExplore()
     {
-        if (exploreDay < exploreReturnDay)
+        if (exploreDay < exploreData.returnDays)
             return;
+        //todo 计算探索结果, 失败, 一般, 成功, 大成功
         int resultIndex = 0;
-        for (int i = 0; i < exploreData.itemSets.Count; i++)
-        {
-            if (GameUtil.ListContains(selectedItemSet, exploreData.itemSets[i]))
-            {
-                resultIndex = i + 1;
-            }
-        }
 
         //根据结果提供奖励, 道具和资源变化
-        //foreach (var statusChange in data.statusChange[resultIndex])
-        //{
-        //    resourceManager.UpdateCharacter(statusChange);
-        //}
-        //resourceManager.GetItembox(data.branchItem[resultIndex]);
-        resourceManager.GetItembox(exploreData.itemBoxId);
+
+        //根据携带道具提供奖励, 道具和资源变化
+        int extraIndex = exploreData.provideItem.IndexOf(carryItem) + 1;
+        if (exploreData.getItem.Any())
+        {
+            resourceManager.AddItem(exploreData.getItem[extraIndex]);
+        }
+        if (exploreData.getRes.Any())
+        {
+            resourceManager.AddResource(exploreData.getRes[extraIndex]);
+        }
 
         processManager.SaveExploreResult(exploreData.id, resultIndex);
         int exploreNum = groupExploreNum.GetValueOrDefault(exploreData.groupId);
@@ -132,7 +133,7 @@ public class ExploreManager : MonoBehaviour
     private void ClearData()
     {
         exploreCharacter = 0;
-        selectedItemSet.Clear();
+        carryItem = 0;
         exploreDay = 0;
         DoExplore = false;
         PrepareExplore = false;
@@ -164,15 +165,14 @@ public class ExploreManager : MonoBehaviour
     public bool SelectItem(int itemId)
     {
         bool result = resourceManager.DeductItem(itemId);
-        if (result)
-            selectedItemSet.Add(itemId);
+        carryItem = itemId;
         return result;
     }
 
     public void UnselectItem(int itemId)
     {
-        if (selectedItemSet.Remove(itemId))
-            resourceManager.AddItem(itemId);
+        carryItem = itemId;
+        resourceManager.AddItem(itemId);
     }
 
     public void SelectGroup(int groupId)

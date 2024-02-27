@@ -6,6 +6,11 @@ using Table;
 using Util;
 
 
+public enum EventStoryType
+{
+    Normal, Select, ItemSelect
+}
+
 //用于判断和控制故事主线内容
 public class StorylineManager : MonoBehaviour
 {
@@ -13,7 +18,7 @@ public class StorylineManager : MonoBehaviour
 
     //这个事件的决策数据
     public int option = 0;
-    public List<int> itemSet = new();
+    public int provideItemId = 0;
     public bool IsChecked { get; private set; }
 
     private ResourceManager resourceManager;
@@ -34,7 +39,7 @@ public class StorylineManager : MonoBehaviour
         //首次筛选, 筛出所有满足条件的事件
         List<EventStoryData> pool1 = EventStoryTable.datas.Where(e =>
             //根据include和exclude筛选
-            e.days.Contains(day)
+            e.day.Contains(day)
             && processManager.CanMeetCondition(e.include)
             && !processManager.CanMeetCondition(e.exclude, false)
         ).ToList();
@@ -61,7 +66,7 @@ public class StorylineManager : MonoBehaviour
     private void ClearData()
     {
         option = 0;
-        itemSet.Clear();
+        provideItemId = 0;
         IsChecked = false;
     }
 
@@ -69,20 +74,20 @@ public class StorylineManager : MonoBehaviour
     public void SettleSotryline()
     {
         int resultIndex = option;
-        for (int i = 0; i < CurrentData.itemSets.Count; i++)
-        {
-            if (GameUtil.ListContains(itemSet, CurrentData.itemSets[i]))
-            {
-                resultIndex = i + 1;
-            }
-        }
+        if (CurrentData.eventType == (int)EventStoryType.ItemSelect)
+            resultIndex = CurrentData.provideItem.IndexOf(provideItemId) + 1;
+
         //根据结果提供奖励, 道具和资源变化
-        foreach (var statusChange in CurrentData.statusChange[resultIndex])
+        if (CurrentData.getItem.Any())
         {
-            resourceManager.UpdateCharacter(statusChange);
+            resourceManager.AddItem(CurrentData.getItem[resultIndex]);
         }
-        //resourceManager.GetItembox(CurrentData.branchItem[resultIndex]);
-        resourceManager.GetItembox(100002);
+
+        if (CurrentData.getRes.Any())
+        {
+            resourceManager.AddResource(CurrentData.getRes[resultIndex]);
+        }
+        //todo statusChange
 
         processManager.SaveStorylineResult(CurrentData.id, resultIndex);
         //将初始化好的数据填充到ContentManager中等待显示
@@ -93,20 +98,18 @@ public class StorylineManager : MonoBehaviour
     {
         this.option = option;
         IsChecked = true;
+        if (CurrentData.provideRes.Any())
+        {
+            resourceManager.DeductResource(CurrentData.provideRes);
+        }
     }
 
-    public bool SelectItem(int itemId)
+    public bool ProvideItem(int itemId)
     {
         bool result = resourceManager.DeductItem(itemId);
         if (result)
-            itemSet.Add(itemId);
+            provideItemId = itemId;
         return result;
-    }
-
-    public void UnselectItem(int itemId)
-    {
-        if (itemSet.Remove(itemId))
-            resourceManager.AddItem(itemId);
     }
 
     //展示

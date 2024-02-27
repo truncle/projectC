@@ -162,18 +162,17 @@ public class ResourceManager : MonoBehaviour
     //增加道具
     public bool AddItem(int itemId)
     {
+        if (itemId <= 0)
+            return false;
         return itemsTemp.Add(itemId);
     }
 
-    public HashSet<int> AddItem(HashSet<int> addItems)
+    public void AddItem(List<int> addItems)
     {
-        HashSet<int> result = new();
-        foreach (var itemId in addItems)
+        foreach (var item in addItems)
         {
-            if (itemsTemp.Add(itemId))
-                result.Add(itemId);
+            AddItem(item);
         }
-        return result;
     }
 
     //修改角色状态, 还需要处理各种状态 < 0时的情况
@@ -216,17 +215,40 @@ public class ResourceManager : MonoBehaviour
         return resourceValuesTemp.GetValueOrDefault(type) >= num;
     }
 
-    public bool DeductResource(ResourceType type, int num)
+    public void DeductResource(ResourceType type, int num)
     {
-        if (!HasResource(type, num))
-            return false;
-        resourceValuesTemp[type] = resourceValuesTemp.GetValueOrDefault(type) - num;
-        return true;
+        resourceValuesTemp[type] = Math.Max(resourceValuesTemp.GetValueOrDefault(type) - num, 0);
+    }
+    public void DeductResource(int type, int num)
+    {
+        if (type <= 0)
+            return;
+        DeductResource((ResourceType)type, num);
+    }
+    public void DeductResource(List<List<int>> resList)
+    {
+        foreach (var res in resList)
+        {
+            DeductResource(res[1], res[2]);
+        }
     }
 
     public void AddResource(ResourceType type, int num)
     {
         resourceValuesTemp[type] = resourceValuesTemp.GetValueOrDefault(type) + num;
+    }
+    public void AddResource(int type, int num)
+    {
+        if (type <= 0)
+            return;
+        AddResource((ResourceType)type, num);
+    }
+    public void AddResource(List<List<int>> resList)
+    {
+        foreach (var res in resList)
+        {
+            AddResource(res[1], res[2]);
+        }
     }
 
     //将资源变更同步到当前资源
@@ -253,12 +275,12 @@ public class ResourceManager : MonoBehaviour
         return charactersTemp.Where(e => e.characterId == characterId).First();
     }
 
-    //获取道具箱中的道具
-    public List<int> GetItembox(int itemboxId)
-    {
-        List<int> items = ItemboxTable.Get(itemboxId).GetItems();
-        AddItem(new HashSet<int>(items));
-        return items;
-    }
+    ////获取道具箱中的道具
+    //public List<int> GetItembox(int itemboxId)
+    //{
+    //    List<int> items = ItemboxTable.Get(itemboxId).GetItems();
+    //    AddItem(new HashSet<int>(items));
+    //    return items;
+    //}
 
 }

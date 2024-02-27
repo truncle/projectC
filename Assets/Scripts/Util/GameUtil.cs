@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 namespace Util
@@ -11,11 +13,6 @@ namespace Util
     public static class GameUtil
     {
         static string tableFolderPath = Path.Combine(Application.streamingAssetsPath, "CsvTable");
-
-        public static void Print()
-        {
-            Debug.Log("Hello");
-        }
 
         public static List<List<Table.Condition>> GetConditionSet(string str)
         {
@@ -75,11 +72,11 @@ namespace Util
             string path = Path.Combine(tableFolderPath, filePath);
             using StreamReader reader = new(path, Encoding.UTF8);
             List<List<string>> data = new();
-            List<string> fields = new(reader.ReadLine().Split(","));
+            List<string> fields = new(reader.ReadLine().Split(";"));
             string line = null;
             while ((line = reader.ReadLine()) != null)
             {
-                List<string> lineData = new(line.Split(","));
+                List<string> lineData = new(line.Split(";"));
                 data.Add(lineData);
             }
             return new Table.RawTable
