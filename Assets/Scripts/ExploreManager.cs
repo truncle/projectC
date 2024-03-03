@@ -58,7 +58,7 @@ public class ExploreManager : MonoBehaviour
         }
         else if (exploreState == ExploreState.Start)
             CheckStartExplore();
-        else if (exploreState == ExploreState.Start)
+        else if (exploreState == ExploreState.Exploring)
             CheckEndExplore();
     }
 
@@ -93,7 +93,10 @@ public class ExploreManager : MonoBehaviour
             && processManager.CanMeetCondition(e.include)
             && !processManager.CanMeetCondition(e.exclude, false);
         }).ToList();
-        exploreData = pool[Random.Range(0, pool.Count)];
+        //exploreData = pool[Random.Range(0, pool.Count)];
+        exploreData = ExploreTable.datas[0];
+        exploreState = ExploreState.Exploring;
+        exploreDay = 0;
 
         DoExplore = false;
 
@@ -104,8 +107,15 @@ public class ExploreManager : MonoBehaviour
     //检查探索结束
     public void CheckEndExplore()
     {
-        if (exploreDay < exploreData.returnDays)
+
+        if (exploreState != ExploreState.Exploring)
             return;
+        //if (processManager.CurrentDay - exploreDay < exploreData.returnDays)
+        if (exploreDay < 2)
+        {
+            exploreDay++;
+            return;
+        }
         //todo 计算探索结果, 失败, 一般, 成功, 大成功
         int resultIndex = 0;
 
@@ -138,6 +148,7 @@ public class ExploreManager : MonoBehaviour
         DoExplore = false;
         PrepareExplore = false;
         exploreState = ExploreState.Idle;
+        exploreData = new();
     }
 
     //--------------玩家操作--------------

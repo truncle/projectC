@@ -86,7 +86,13 @@ public class StorylineManager : MonoBehaviour
         if (CurrentData.getRes.Any())
         {
             resourceManager.AddResource(CurrentData.getRes[resultIndex]);
+            //resourceManager.AddResource(ResourceType.Water, 20);
+            //resourceManager.AddResource(ResourceType.Food, 10);
         }
+        //if (CurrentData.lostRes.Any())
+        //{
+        //    resourceManager.DeductResource(CurrentData.getRes[resultIndex]);
+        //}
         //todo statusChange
 
         processManager.SaveStorylineResult(CurrentData.id, resultIndex);

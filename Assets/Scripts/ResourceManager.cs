@@ -7,7 +7,7 @@ using UnityEngine;
 
 public enum ResourceType
 {
-    Food, Water,
+    Water = 1, Food = 2,
 }
 
 public enum StatusType
@@ -39,6 +39,11 @@ public struct CharacterStatus
     public void ChangeValue(KeyValuePair<StatusType, int> pair)
     {
         ChangeValue(pair.Key, pair.Value);
+    }
+
+    public override string ToString()
+    {
+        return $"{characterId}: H:{GetValue(StatusType.Hungry)} T:{GetValue(StatusType.Thirsty)} M:{GetValue(StatusType.Mind)}";
     }
 }
 
@@ -209,6 +214,11 @@ public class ResourceManager : MonoBehaviour
         });
     }
 
+    public int GetResourceNum(ResourceType type)
+    {
+        return resourceValues.GetValueOrDefault(type);
+    }
+
     //×ÊÔ´ÊÇ·ñ×ã¹»
     public bool HasResource(ResourceType type, int num)
     {
@@ -229,7 +239,8 @@ public class ResourceManager : MonoBehaviour
     {
         foreach (var res in resList)
         {
-            DeductResource(res[1], res[2]);
+            if (res.Count == 2)
+                DeductResource(res[0], res[1]);
         }
     }
 
@@ -247,7 +258,8 @@ public class ResourceManager : MonoBehaviour
     {
         foreach (var res in resList)
         {
-            AddResource(res[1], res[2]);
+            if (res.Count == 2)
+                AddResource(res[0], res[1]);
         }
     }
 
