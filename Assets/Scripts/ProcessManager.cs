@@ -64,6 +64,7 @@ public class ProcessManager : MonoBehaviour
     {
         Debug.Log("End day " + CurrentDay);
         storylineManager.SettleSotryline();
+        exploreManager.CheckEndExplore();
         resourceManager.SyncResource();
         CurrentDay += 1;
         contentManager.Sync();
