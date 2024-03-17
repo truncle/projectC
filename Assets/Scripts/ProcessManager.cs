@@ -30,6 +30,8 @@ public class ProcessManager : MonoBehaviour
         exploreManager = GetComponent<ExploreManager>();
         contentManager = GetComponent<ContentManager>();
         resourceManager.Init();
+
+        InitCurrentDay();
     }
 
     public void Update()
@@ -51,6 +53,7 @@ public class ProcessManager : MonoBehaviour
         }
     }
 
+    //todo 改为事件处理, 不过现在这样更好展示流程
     //初始化当天的数据, 之后同步显示内容
     public void InitCurrentDay()
     {
@@ -105,6 +108,10 @@ public class ProcessManager : MonoBehaviour
                         break;
                     case "CHARACTER":
                         value = CurrentCharacter;
+                        conditionValue = Convert.ToInt32(condition.param[0]);
+                        break;
+                    case "EXPLORE":
+                        value = exploreRecord.GetValueOrDefault(Convert.ToInt32(condition.param[0]));
                         conditionValue = Convert.ToInt32(condition.param[0]);
                         break;
                 }
