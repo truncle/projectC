@@ -43,7 +43,7 @@ namespace Table
                 data.textContent = Convert.ToInt32(rawTable.Get("textContent", row));
                 data.eventType = Convert.ToInt32(rawTable.Get("eventType", row));
                 data.day = new();
-                List<int> daySpan = rawTable.GetList<int>("day", row, "|");
+                List<int> daySpan = rawTable.GetList<int>("day", row, ":");
                 if (daySpan.Count == 1)
                     data.day.Add(daySpan[0]);
                 else
