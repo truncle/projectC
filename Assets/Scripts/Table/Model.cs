@@ -61,13 +61,13 @@ namespace Table
         public List<List<List<T>>> GetList3<T>(string field, List<string> row, string sep = "|", string sep2 = "&", string sep3 = ":")
         {
             List<List<List<T>>> result = new();
-            List<List<T>> result2 = new();
             int index = fields.IndexOf(field);
             if (string.IsNullOrEmpty(row[index]))
                 return new();
             string[] list1 = row[index].Split(sep);
             for (int i = 0; i < list1.Length; i++)
             {
+                List<List<T>> result2 = new();
                 if (string.IsNullOrEmpty(list1[i]))
                     continue;
                 string[] list2 = list1[i].Split(sep2);

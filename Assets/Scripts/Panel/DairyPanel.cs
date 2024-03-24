@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DairyPanel : MonoBehaviour
 {
@@ -42,6 +44,23 @@ public class DairyPanel : MonoBehaviour
             GameObject nextPage = transform.GetChild(currPage).gameObject;
             page.SetActive(false);
             nextPage.SetActive(true);
+            if (nextPage.name == "Explory")
+            {
+                if (exploreManager.exploreState == ExploreState.Idle)
+                {
+                    nextPage.transform.Find("PreparePage").gameObject.SetActive(true);
+                    nextPage.transform.Find("StartingPage").gameObject.SetActive(false);
+                }
+                else if (exploreManager.exploreState == ExploreState.Idle)
+                {
+                    nextPage.transform.Find("PreparePage").gameObject.SetActive(false);
+                    nextPage.transform.Find("StartingPage").gameObject.SetActive(true);
+                }
+                else
+                {
+                    NextPage();
+                }
+            }
         }
         else
         {
@@ -53,6 +72,17 @@ public class DairyPanel : MonoBehaviour
             page.SetActive(false);
             nextPage.SetActive(true);
         }
+    }
+
+    public void PrevPage()
+    {
+        if (currPage <= 0)
+            return;
+        GameObject page = transform.GetChild(currPage).gameObject;
+        currPage = currPage - 1;
+        GameObject prevPage = transform.GetChild(currPage).gameObject;
+        page.SetActive(false);
+        prevPage.SetActive(true);
     }
 
     public void OpenPanel()
@@ -79,6 +109,19 @@ public class DairyPanel : MonoBehaviour
     public void AssignAllResource()
     {
 
+    }
+
+    public void PrepareExplore(Button button)
+    {
+        exploreManager.PrepareExplore = !exploreManager.PrepareExplore;
+        if (exploreManager.PrepareExplore)
+        {
+            button.GetComponentInChildren<TextMeshProUGUI>().text = "Prepared";
+        }
+        else
+        {
+            button.GetComponentInChildren<TextMeshProUGUI>().text = "PrepareExplore";
+        }
     }
 
     //ÊÂ¼þÑ¡Ôñ
