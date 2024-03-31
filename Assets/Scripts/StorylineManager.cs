@@ -54,7 +54,8 @@ public class StorylineManager : MonoBehaviour
         //最后从结果列表中随机选择一个作为当天的故事节点
         if (pool2.Any())
             CurrentData = pool2[Random.Range(0, pool2.Count)];
-        else CurrentData = pool1[Random.Range(0, pool1.Count)];
+        else if (pool1.Any()) CurrentData = pool1[Random.Range(0, pool1.Count)];
+        else return;
         IsChecked = CurrentData.endTextContent.Count <= 1;
 
         //将初始化好的数据填充到ContentManager中等待显示
