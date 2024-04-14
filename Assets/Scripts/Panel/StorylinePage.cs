@@ -23,6 +23,10 @@ public class StorylinePage : MonoBehaviour
         if (SelectGroup.ActiveToggles().Any())
             nextPage.SetActive(true);
         else nextPage.SetActive(false);
+    }
 
+    private void OnDisable()
+    {
+        nextPage.SetActive(true);
     }
 }

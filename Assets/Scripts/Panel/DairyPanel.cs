@@ -85,13 +85,15 @@ public class DairyPanel : MonoBehaviour
         prevPage.SetActive(true);
     }
 
-    public void OpenPanel()
+    public void OpenPanel(GameObject go)
     {
+        go.SetActive(false);
         gameObject.SetActive(true);
     }
 
-    public void ClosePanel()
+    public void ClosePanel(GameObject go)
     {
+        go.SetActive(true);
         gameObject.SetActive(false);
     }
 
