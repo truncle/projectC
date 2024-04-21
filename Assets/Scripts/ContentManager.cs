@@ -17,9 +17,9 @@ public class ContentManager : MonoBehaviour
     private ExploreManager exploreManager;
 
     //这里包含界面显示需要的所有信息, 需要打包进存档
-    public string JournalText { get; set; } = "JournalText";
-    public string ExploreText { get; set; } = "ExploreText";
-    public string StorylineContent { get; set; } = "StroylineText";
+    public string JournalText { get; set; } = string.Empty;
+    public string ExploreText { get; set; } = string.Empty;
+    public string StorylineContent { get; set; } = string.Empty;
 
     private void Start()
     {
@@ -29,6 +29,13 @@ public class ContentManager : MonoBehaviour
         JournalTextUI = GameObject.Find("MaingameUI").transform.Find("DiaryPanel/Journal/TextContent").GetComponent<TextMeshProUGUI>();
         ExploreTextUI = GameObject.Find("MaingameUI").transform.Find("DiaryPanel/Explory/TextContent").GetComponent<TextMeshProUGUI>();
         StorylineContentUI = GameObject.Find("MaingameUI").transform.Find("DiaryPanel/Storyline/Display").GetComponent<TextMeshProUGUI>();
+    }
+
+    public void Clear()
+    {
+        JournalText = string.Empty;
+        ExploreText = string.Empty;
+        StorylineContent = string.Empty;
     }
 
     public void Sync()
@@ -48,7 +55,6 @@ public class ContentManager : MonoBehaviour
         JournalTextUI.text = JournalText;
         ExploreTextUI.text = ExploreText;
         StorylineContentUI.text = StorylineContent;
-
     }
 
     public void PushContent(string content)

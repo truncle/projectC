@@ -51,7 +51,7 @@ public class StorylineManager : MonoBehaviour
             return processManager.CanMeetCondition(e.priorityBranch);
         }).ToList();
 
-        pool1.Add(EventStoryTable.datas.First());
+        //pool1.Add(EventStoryTable.datas.First());
 
         //最后从结果列表中随机选择一个作为当天的故事节点
         if (pool2.Any())
@@ -62,6 +62,13 @@ public class StorylineManager : MonoBehaviour
 
         //将初始化好的数据填充到ContentManager中等待显示
         DisplayContent(CurrentData);
+
+        //第一天特殊逻辑
+        if (day == 1)
+        {
+            List<EventStoryData> pool3 = EventStoryTable.datas.Where(e => e.day.Contains(0)).ToList();
+            DisplayEnding(pool3[Random.Range(0, pool3.Count)], 0);
+        }
     }
 
 
@@ -136,7 +143,7 @@ public class StorylineManager : MonoBehaviour
         Debug.Log("Show story ending id: " + storyData.id);
         string storyEnding = TextTable.GetText(storyData.endTextContent[end]);
         Debug.Log(string.Format("end{0}, endText:{1}", end, storyEnding));
-        contentManager.JournalText += "\n" + storyEnding;
+        contentManager.JournalText += storyEnding;
     }
 
 }
