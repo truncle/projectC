@@ -17,11 +17,15 @@ public class DairyPanel : MonoBehaviour
     private int currPage = 0;
     private List<GameObject> dairyPages;
 
+    private GameObject prevPageBtn;
+
+
 
     private void Start()
     {
         gameManager = GameManager.Instance;
         maingameManagers = GameObject.Find("MaingameManagers");
+        prevPageBtn = GameObject.Find("PrevPageBtn");
         resourceManager = maingameManagers.GetComponent<ResourceManager>();
         processManager = maingameManagers.GetComponent<ProcessManager>();
         contentManager = maingameManagers.GetComponent<ContentManager>();
@@ -32,6 +36,10 @@ public class DairyPanel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (currPage == 0)
+            prevPageBtn.SetActive(false);
+        else
+            prevPageBtn.SetActive(true);
 
     }
 
@@ -51,7 +59,7 @@ public class DairyPanel : MonoBehaviour
                     nextPage.transform.Find("PreparePage").gameObject.SetActive(true);
                     nextPage.transform.Find("StartingPage").gameObject.SetActive(false);
                 }
-                else if (exploreManager.exploreState == ExploreState.Idle)
+                else if (exploreManager.exploreState == ExploreState.Start)
                 {
                     nextPage.transform.Find("PreparePage").gameObject.SetActive(false);
                     nextPage.transform.Find("StartingPage").gameObject.SetActive(true);
@@ -83,6 +91,23 @@ public class DairyPanel : MonoBehaviour
         GameObject prevPage = transform.GetChild(currPage).gameObject;
         page.SetActive(false);
         prevPage.SetActive(true);
+        if (prevPage.name == "Explory")
+        {
+            if (exploreManager.exploreState == ExploreState.Idle)
+            {
+                prevPage.transform.Find("PreparePage").gameObject.SetActive(true);
+                prevPage.transform.Find("StartingPage").gameObject.SetActive(false);
+            }
+            else if (exploreManager.exploreState == ExploreState.Start)
+            {
+                prevPage.transform.Find("PreparePage").gameObject.SetActive(false);
+                prevPage.transform.Find("StartingPage").gameObject.SetActive(true);
+            }
+            else
+            {
+                PrevPage();
+            }
+        }
     }
 
     public void OpenPanel(GameObject go)
@@ -113,16 +138,17 @@ public class DairyPanel : MonoBehaviour
 
     }
 
-    public void PrepareExplore(Button button)
+    public void PrepareExplore(Toggle toggle)
     {
-        exploreManager.PrepareExplore = !exploreManager.PrepareExplore;
+        //exploreManager.PrepareExplore = !exploreManager.PrepareExplore;
+        exploreManager.PrepareExplore = toggle.isOn;
         if (exploreManager.PrepareExplore)
         {
-            button.GetComponentInChildren<TextMeshProUGUI>().text = "Prepared";
+            toggle.GetComponentInChildren<Text>().text = "Prepared";
         }
         else
         {
-            button.GetComponentInChildren<TextMeshProUGUI>().text = "PrepareExplore";
+            toggle.GetComponentInChildren<Text>().text = "Prepare";
         }
     }
 

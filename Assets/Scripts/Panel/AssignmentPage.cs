@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 public class AssignmentPage : MonoBehaviour
@@ -28,7 +29,17 @@ public class AssignmentPage : MonoBehaviour
     {
     }
 
-    public void SelectFood(GameObject character)
+    public void OnSelectWater(GameObject character)
+    {
+        Toggle toggle = character.transform.Find("Water").GetComponent<Toggle>();
+    }
+
+    public void OnSelectFood(GameObject character)
+    {
+        Toggle toggle = character.transform.Find("Food").GetComponent<Toggle>();
+    }
+
+    private void SelectFood(GameObject character)
     {
         Toggle toggle = character.transform.Find("Food").GetComponent<Toggle>();
         if (!toggle.isOn)
@@ -44,7 +55,7 @@ public class AssignmentPage : MonoBehaviour
         toggle.isOn = !toggle.isOn;
     }
 
-    public void SelectWater(GameObject character)
+    private void SelectWater(GameObject character)
     {
         Toggle toggle = character.transform.Find("Water").GetComponent<Toggle>();
         if (!toggle.isOn)
@@ -71,7 +82,9 @@ public class AssignmentPage : MonoBehaviour
     public void SelectFood()
     {
         foreach (var character in assignCharacters)
+        {
             SelectFood(character);
+        }
     }
 
     public void SelectCharacter(GameObject character)

@@ -67,7 +67,7 @@ public class ProcessManager : MonoBehaviour
     {
         Debug.Log("End day " + CurrentDay);
         storylineManager.SettleSotryline();
-        exploreManager.CheckEndExplore();
+        exploreManager.SettleDayExplore();
         resourceManager.SyncResource();
         CurrentDay += 1;
         contentManager.Sync();
@@ -137,7 +137,8 @@ public class ProcessManager : MonoBehaviour
     //保存事件结果
     public void SaveStorylineResult(int id, int result)
     {
-        storylineRecord.Add(id, result);
+        //storylineRecord.Add(id, result);
+        storylineRecord[id] = result;
     }
 
     //保存探索结果

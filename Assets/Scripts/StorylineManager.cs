@@ -51,6 +51,8 @@ public class StorylineManager : MonoBehaviour
             return processManager.CanMeetCondition(e.priorityBranch);
         }).ToList();
 
+        pool1.Add(EventStoryTable.datas.First());
+
         //最后从结果列表中随机选择一个作为当天的故事节点
         if (pool2.Any())
             CurrentData = pool2[Random.Range(0, pool2.Count)];
@@ -59,7 +61,7 @@ public class StorylineManager : MonoBehaviour
         IsChecked = CurrentData.endTextContent.Count <= 1;
 
         //将初始化好的数据填充到ContentManager中等待显示
-        ShowStoryData(CurrentData);
+        DisplayContent(CurrentData);
     }
 
 
@@ -98,7 +100,7 @@ public class StorylineManager : MonoBehaviour
 
         processManager.SaveStorylineResult(CurrentData.id, resultIndex);
         //将初始化好的数据填充到ContentManager中等待显示
-        ShowStoryData(CurrentData, resultIndex);
+        DisplayEnding(CurrentData, resultIndex);
     }
 
     public void Select(int option)
@@ -119,23 +121,22 @@ public class StorylineManager : MonoBehaviour
         return result;
     }
 
-    //展示
-    private void ShowStoryData(EventStoryData storyData, int end = -1)
+    //todo 根据数据动态显示按钮
+    private void DisplayContent(EventStoryData storyData)
     {
         Debug.Log("Show story data id: " + storyData.id);
-        string pushText;
-        if (end >= 0)
-        {
-            pushText = TextTable.GetText(storyData.endTextContent[end]);
-            Debug.Log(string.Format("end{0}, endText:{1}", end, pushText));
-        }
-        else
-        {
-            pushText = TextTable.GetText(storyData.textContent);
-            Debug.Log(string.Format("init story text:{0}", pushText));
-            contentManager.PushContent("story text: " + TextTable.GetText(storyData.textContent));
-        }
-        contentManager.PushContent("story text: " + pushText);
+        string storyContent = TextTable.GetText(storyData.textContent);
+        Debug.Log(string.Format("init story text:{0}", storyContent));
+        contentManager.StorylineContent = storyContent;
+    }
+
+    //修改的是JournalText
+    private void DisplayEnding(EventStoryData storyData, int end)
+    {
+        Debug.Log("Show story ending id: " + storyData.id);
+        string storyEnding = TextTable.GetText(storyData.endTextContent[end]);
+        Debug.Log(string.Format("end{0}, endText:{1}", end, storyEnding));
+        contentManager.JournalText += "\n" + storyEnding;
     }
 
 }
