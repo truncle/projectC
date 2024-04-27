@@ -10,7 +10,7 @@ namespace Util
     {
         public static int ExploreCoolDown = 2;
 
-        public static int GroupBase = 10000;
+        public static int GroupBase = 0;
         public static int GroupNum = 2;
 
     }

@@ -36,7 +36,6 @@ public class GameInterface : MonoBehaviour
 
     public void StartExplore()
     {
-        exploreManager.SelectCharacter(1);
         exploreManager.CheckStartExplore();
     }
 }

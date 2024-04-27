@@ -29,46 +29,36 @@ public class AssignmentPage : MonoBehaviour
     {
     }
 
-    public void OnSelectWater(GameObject character)
+    public void SelectFood(GameObject character)
     {
-        Toggle toggle = character.transform.Find("Water").GetComponent<Toggle>();
-    }
-
-    public void OnSelectFood(GameObject character)
-    {
-        Toggle toggle = character.transform.Find("Food").GetComponent<Toggle>();
-    }
-
-    private void SelectFood(GameObject character)
-    {
-        Toggle toggle = character.transform.Find("Food").GetComponent<Toggle>();
-        if (!toggle.isOn)
+        GameObject checkMark = character.transform.Find("Food/CheckMark").gameObject;
+        if (checkMark.activeSelf == false)
         {
-            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character), ResourceType.Food, 1);
+            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Food, 1);
             if (!res) return;
         }
         else
         {
-            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character), ResourceType.Food, 1);
+            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Food, 1);
             if (!res) return;
         }
-        toggle.isOn = !toggle.isOn;
+        checkMark.SetActive(!checkMark.activeSelf);
     }
 
-    private void SelectWater(GameObject character)
+    public void SelectWater(GameObject character)
     {
-        Toggle toggle = character.transform.Find("Water").GetComponent<Toggle>();
-        if (!toggle.isOn)
+        GameObject checkMark = character.transform.Find("Water/CheckMark").gameObject;
+        if (checkMark.activeSelf == false)
         {
-            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character), ResourceType.Water, 1);
+            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Water, 1);
             if (!res) return;
         }
         else
         {
-            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character), ResourceType.Water, 1);
+            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Water, 1);
             if (!res) return;
         }
-        toggle.isOn = !toggle.isOn;
+        checkMark.SetActive(!checkMark.activeSelf);
     }
 
     public void SelectWater()

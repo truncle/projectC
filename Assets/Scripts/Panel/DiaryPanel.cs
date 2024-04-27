@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DairyPanel : MonoBehaviour
+public class DiaryPanel : MonoBehaviour
 {
     GameManager gameManager;
     GameObject maingameManagers;

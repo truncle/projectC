@@ -8,6 +8,9 @@ using UnityEngine;
 //将每轮处理结果汇总成文本展示
 public class ContentManager : MonoBehaviour
 {
+    private DiaryPanel DiaryPanel;
+    private ExploryPage ExploryPage;
+
     private TextMeshProUGUI JournalTextUI;
     private TextMeshProUGUI ExploreTextUI;
     private TextMeshProUGUI StorylineContentUI;
@@ -26,8 +29,12 @@ public class ContentManager : MonoBehaviour
         resourceManager = GetComponent<ResourceManager>();
         processManager = GetComponent<ProcessManager>();
         exploreManager = GetComponent<ExploreManager>();
+
+        DiaryPanel = GameObject.Find("MaingameUI/DiaryPanel").GetComponent<DiaryPanel>();
+        ExploryPage = DiaryPanel.transform.Find("Explory").GetComponent<ExploryPage>();
+
         JournalTextUI = GameObject.Find("MaingameUI").transform.Find("DiaryPanel/Journal/TextContent").GetComponent<TextMeshProUGUI>();
-        ExploreTextUI = GameObject.Find("MaingameUI").transform.Find("DiaryPanel/Explory/TextContent").GetComponent<TextMeshProUGUI>();
+        //ExploreTextUI = GameObject.Find("MaingameUI").transform.Find("DiaryPanel/Explory/TextContent").GetComponent<TextMeshProUGUI>();
         StorylineContentUI = GameObject.Find("MaingameUI").transform.Find("DiaryPanel/Storyline/Display").GetComponent<TextMeshProUGUI>();
     }
 
@@ -52,8 +59,9 @@ public class ContentManager : MonoBehaviour
         //    sb.AppendLine(character.ToString());
         //}
         //JournalTextUI.text = sb.ToString();
+
         JournalTextUI.text = JournalText;
-        ExploreTextUI.text = ExploreText;
+        //ExploreTextUI.text = ExploreText;
         StorylineContentUI.text = StorylineContent;
     }
 
@@ -72,8 +80,8 @@ public class ContentManager : MonoBehaviour
 
     }
 
-    private void GetContent()
+    public ExploreOption GetExploreOption()
     {
-
+        return ExploryPage.GetExploreOption();
     }
 }

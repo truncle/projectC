@@ -76,8 +76,15 @@ public class ResourceManager : MonoBehaviour
             new() { characterId = 3, statusValues = new() },
             new() { characterId = 4, statusValues = new() },
         };
-        resourceValues = new();
-        items = new();
+        resourceValues = new()
+        {
+            { ResourceType.Water, 100 },
+            { ResourceType.Food, 100 },
+        };
+        items = new()
+        {
+            1,3,5
+        };
 
         charactersTemp = new()
         {
@@ -86,8 +93,9 @@ public class ResourceManager : MonoBehaviour
             new() { characterId = 3, statusValues = new() },
             new() { characterId = 4, statusValues = new() },
         };
-        resourceValuesTemp = new();
-        itemsTemp = new();
+        resourceValuesTemp = new(resourceValues);
+        itemsTemp = new(items);
+        resourceAlloc = new();
     }
 
     //∑÷≈‰◊ ‘¥
@@ -95,7 +103,7 @@ public class ResourceManager : MonoBehaviour
     {
         if (!HasResource(type, num))
             return false;
-        if (resourceAlloc.ContainsKey(characterId))
+        if (!resourceAlloc.ContainsKey(characterId))
             resourceAlloc[characterId] = new();
         Dictionary<ResourceType, int> characterAlloc = resourceAlloc[characterId];
         characterAlloc[type] = characterAlloc.GetValueOrDefault(type) + num;
@@ -104,7 +112,7 @@ public class ResourceManager : MonoBehaviour
     }
     public bool UnallocResource(int characterId, ResourceType type, int num)
     {
-        if (resourceAlloc.ContainsKey(characterId))
+        if (!resourceAlloc.ContainsKey(characterId))
             resourceAlloc[characterId] = new();
         Dictionary<ResourceType, int> characterAlloc = resourceAlloc[characterId];
         if (characterAlloc.GetValueOrDefault(type) < num)

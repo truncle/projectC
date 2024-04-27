@@ -71,7 +71,6 @@ public class StorylineManager : MonoBehaviour
         }
     }
 
-
     //清除当前事件所有信息
     private void ClearData()
     {

@@ -48,7 +48,6 @@ public class ProcessManager : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.E))
         {
-            exploreManager.SelectCharacter(1);
             exploreManager.CheckStartExplore();
         }
     }
