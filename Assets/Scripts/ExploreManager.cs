@@ -76,7 +76,10 @@ public class ExploreManager : MonoBehaviour
     {
         ExploreOption option = contentManager.GetExploreOption();
         if (option.characterId <= 0)
+        {
+            PrepareExplore = false;
             return;
+        }
 
         exploreCharacter = option.characterId;
         carryItem = option.carryItem;
@@ -206,7 +209,8 @@ public class ExploreManager : MonoBehaviour
         Debug.Log("start explore id: " + exploreData.id);
         string startExploreText = TextTable.GetText(exploreData.textContent);
         Debug.Log(string.Format("start explore text:{0}", startExploreText));
-        contentManager.JournalText += "\n" + startExploreText;
+        contentManager.JournalText.AppendLine();
+        contentManager.JournalText.AppendLine(startExploreText);
     }
 
     private void DisplayExploreEnd(ExploreData exploreData, int end)
@@ -214,7 +218,8 @@ public class ExploreManager : MonoBehaviour
         Debug.Log("end explore id: " + exploreData.id);
         string endExploreText = TextTable.GetText(exploreData.endTextContent[end]);
         Debug.Log(string.Format("end explore text:{0}", endExploreText));
-        contentManager.JournalText += "\n" + endExploreText;
+        contentManager.JournalText.AppendLine();
+        contentManager.JournalText.AppendLine(endExploreText);
     }
 
     //չʾ

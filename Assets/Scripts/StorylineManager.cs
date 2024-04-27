@@ -133,7 +133,7 @@ public class StorylineManager : MonoBehaviour
         Debug.Log("Show story data id: " + storyData.id);
         string storyContent = TextTable.GetText(storyData.textContent);
         Debug.Log(string.Format("init story text:{0}", storyContent));
-        contentManager.StorylineContent = storyContent;
+        contentManager.StorylineContent.AppendLine(storyContent);
     }
 
     //ÐÞ¸ÄµÄÊÇJournalText
@@ -142,7 +142,7 @@ public class StorylineManager : MonoBehaviour
         Debug.Log("Show story ending id: " + storyData.id);
         string storyEnding = TextTable.GetText(storyData.endTextContent[end]);
         Debug.Log(string.Format("end{0}, endText:{1}", end, storyEnding));
-        contentManager.JournalText += storyEnding;
+        contentManager.JournalText.AppendLine(storyEnding);
     }
 
 }

@@ -1874,7 +1874,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &313144756
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2509,7 +2509,6 @@ MonoBehaviour:
   PreparePage: {fileID: 0}
   StartingPage: {fileID: 0}
   ExploreCharacters: {fileID: 0}
-  noneItemSprite: {fileID: 0}
 --- !u!1 &402404550
 GameObject:
   m_ObjectHideFlags: 0
@@ -3155,7 +3154,7 @@ GameObject:
   - component: {fileID: 599289517}
   - component: {fileID: 599289516}
   m_Layer: 5
-  m_Name: Display
+  m_Name: TextContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5141,7 +5140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1102777858
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5211,7 +5210,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1102777857}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09c19ddbcb71d4c4aa929d641155c42a, type: 3}
+  m_Script: {fileID: 11500000, guid: a66d88bccb2c3c2419a3e5a866372c06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &1127984036 stripped

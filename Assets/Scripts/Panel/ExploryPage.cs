@@ -2,16 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 public class ExploryPage : MonoBehaviour
 {
     GameObject maingameManagers;
     public ResourceManager resourceManager;
+    public ExploreManager exploreManager;
 
     public GameObject PreparePage;
 
     public GameObject StartingPage;
+
+    public GameObject CharactersStatus;
 
     public GameObject ExploreCharacters;
 
@@ -19,7 +23,6 @@ public class ExploryPage : MonoBehaviour
 
     private List<Sprite> itemSprites = new();
 
-    [SerializeField]
     private Sprite noneItemSprite;
 
     private int currItemIndex = -1;
@@ -30,6 +33,7 @@ public class ExploryPage : MonoBehaviour
     {
         maingameManagers = GameObject.Find("MaingameManagers");
         resourceManager = maingameManagers.GetComponent<ResourceManager>();
+        exploreManager = maingameManagers.GetComponent<ExploreManager>();
         itemList = resourceManager.itemsTemp.ToList();
     }
 
@@ -38,6 +42,7 @@ public class ExploryPage : MonoBehaviour
     {
         PreparePage = transform.Find("PreparePage").gameObject;
         StartingPage = transform.Find("StartingPage").gameObject;
+        CharactersStatus = PreparePage.transform.Find("CharactersStatus").gameObject;
         ExploreCharacters = StartingPage.transform.Find("ExploreCharacters").gameObject;
         itemSprites = new(Resources.LoadAll<Sprite>("Pictures/items"));
         imageItem = StartingPage.transform.Find("SelectItem/Item").GetComponent<Image>();
@@ -49,9 +54,21 @@ public class ExploryPage : MonoBehaviour
 
     }
 
+    public void Sync()
+    {
+        // todo 更新角色状态展示
+        //CharactersStatus
+
+        Toggle prepareToggle = PreparePage.transform.Find("PrepareToggle").GetComponent<Toggle>();
+        prepareToggle.isOn = exploreManager.PrepareExplore;
+        foreach (var characterToggle in ExploreCharacters.GetComponentsInChildren<Toggle>())
+        {
+            characterToggle.isOn = false;
+        }
+    }
+
     public void NextItem()
     {
-        Debug.Log(currItemIndex);
         currItemIndex += 1;
         if (currItemIndex == itemList.Count)
         {
