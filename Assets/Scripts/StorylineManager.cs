@@ -8,7 +8,7 @@ using Util;
 
 public enum EventStoryType
 {
-    Normal, Select, ItemSelect
+    Normal = 1, Select, ItemSelect, GroupSelect, FirstDay
 }
 
 //用于判断和控制故事主线内容
@@ -24,6 +24,7 @@ public class StorylineManager : MonoBehaviour
     private ResourceManager resourceManager;
     private ProcessManager processManager;
     private ContentManager contentManager;
+    private ExploreManager exploreManager;
 
     void Start()
     {
@@ -31,6 +32,7 @@ public class StorylineManager : MonoBehaviour
         resourceManager = GetComponent<ResourceManager>();
         processManager = GetComponent<ProcessManager>();
         contentManager = GetComponent<ContentManager>();
+        exploreManager = GetComponent<ExploreManager>();
     }
 
     public void InitStoryline(int day)
@@ -50,8 +52,6 @@ public class StorylineManager : MonoBehaviour
             //根据priorityBranch进行筛选
             return processManager.CanMeetCondition(e.priorityBranch);
         }).ToList();
-
-        //pool1.Add(EventStoryTable.datas.First());
 
         //最后从结果列表中随机选择一个作为当天的故事节点
         if (pool2.Any())
@@ -80,11 +80,18 @@ public class StorylineManager : MonoBehaviour
     }
 
     //结算当前事件结果
-    public void SettleSotryline()
+    public void SettleStoryline()
     {
         int resultIndex = option;
         if (CurrentData.eventType == (int)EventStoryType.ItemSelect)
             resultIndex = CurrentData.provideItem.IndexOf(provideItemId) + 1;
+
+        if (CurrentData.eventType == (int)EventStoryType.GroupSelect)
+        {
+            List<int> groupList = exploreManager.groupSet.ToList();
+            groupList.Sort();
+            exploreManager.selectedGroup = groupList[option];
+        }
 
         //根据结果提供奖励, 道具和资源变化
         if (CurrentData.getItem.Any())
@@ -95,14 +102,20 @@ public class StorylineManager : MonoBehaviour
         if (CurrentData.getRes.Any())
         {
             resourceManager.AddResource(CurrentData.getRes[resultIndex]);
-            //resourceManager.AddResource(ResourceType.Water, 20);
-            //resourceManager.AddResource(ResourceType.Food, 10);
         }
         //if (CurrentData.lostRes.Any())
         //{
         //    resourceManager.DeductResource(CurrentData.getRes[resultIndex]);
         //}
-        //todo statusChange
+
+        // 角色状态变化
+        if (CurrentData.statusChange.Any())
+        {
+            foreach (var singleChange in CurrentData.statusChange[resultIndex])
+            {
+                resourceManager.UpdateCharacter(singleChange[0], (StatusType)singleChange[1], singleChange[2]);
+            }
+        }
 
         processManager.SaveStorylineResult(CurrentData.id, resultIndex);
         //将初始化好的数据填充到ContentManager中等待显示
@@ -127,21 +140,21 @@ public class StorylineManager : MonoBehaviour
         return result;
     }
 
-    //todo 根据数据动态显示按钮
+    //改为通过ContentManager主动拉取
     private void DisplayContent(EventStoryData storyData)
     {
         Debug.Log("Show story data id: " + storyData.id);
         string storyContent = TextTable.GetText(storyData.textContent);
-        Debug.Log(string.Format("init story text:{0}", storyContent));
+        //Debug.Log(string.Format("init story text:{0}", storyContent));
         contentManager.StorylineContent.AppendLine(storyContent);
     }
 
-    //修改的是JournalText
+    //改为通过ContentManager主动拉取
     private void DisplayEnding(EventStoryData storyData, int end)
     {
         Debug.Log("Show story ending id: " + storyData.id);
         string storyEnding = TextTable.GetText(storyData.endTextContent[end]);
-        Debug.Log(string.Format("end{0}, endText:{1}", end, storyEnding));
+        //Debug.Log(string.Format("end:{0}, endText:{1}", end, storyEnding));
         contentManager.JournalText.AppendLine(storyEnding);
     }
 

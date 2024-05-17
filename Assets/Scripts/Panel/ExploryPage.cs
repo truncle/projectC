@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
@@ -8,42 +9,44 @@ using UnityEngine.UI;
 public class ExploryPage : MonoBehaviour
 {
     GameObject maingameManagers;
-    public ResourceManager resourceManager;
-    public ExploreManager exploreManager;
+    private ResourceManager resourceManager;
+    private ExploreManager exploreManager;
 
-    public GameObject PreparePage;
+    private Transform PreparePage;
 
-    public GameObject StartingPage;
+    private Transform StartingPage;
 
-    public GameObject CharactersStatus;
+    private Transform CharactersStatus;
 
-    public GameObject ExploreCharacters;
+    private Transform ExploreCharacters;
 
     private List<int> itemList;
 
     private List<Sprite> itemSprites = new();
 
-    private Sprite noneItemSprite;
+    private Sprite defaultItemSprite;
 
     private int currItemIndex = -1;
 
     private Image imageItem;
 
-    private void OnEnable()
+    // Start is called before the first frame update
+    public void Start()
+    {
+    }
+
+    public void Init()
     {
         maingameManagers = GameObject.Find("MaingameManagers");
         resourceManager = maingameManagers.GetComponent<ResourceManager>();
         exploreManager = maingameManagers.GetComponent<ExploreManager>();
         itemList = resourceManager.itemsTemp.ToList();
-    }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        PreparePage = transform.Find("PreparePage").gameObject;
-        StartingPage = transform.Find("StartingPage").gameObject;
-        CharactersStatus = PreparePage.transform.Find("CharactersStatus").gameObject;
-        ExploreCharacters = StartingPage.transform.Find("ExploreCharacters").gameObject;
+        PreparePage = transform.Find("PreparePage");
+        StartingPage = transform.Find("StartingPage");
+        CharactersStatus = PreparePage.transform.Find("CharactersStatus");
+        ExploreCharacters = StartingPage.transform.Find("ExploreCharacters");
+
         itemSprites = new(Resources.LoadAll<Sprite>("Pictures/items"));
         imageItem = StartingPage.transform.Find("SelectItem/Item").GetComponent<Image>();
     }
@@ -56,15 +59,36 @@ public class ExploryPage : MonoBehaviour
 
     public void Sync()
     {
-        // todo 更新角色状态展示
-        //CharactersStatus
+        // todo 更新角色状态展示文本
+        for (int i = 0; i < CharactersStatus.childCount; i++)
+        {
+            var characterId = i + 1;
+            Transform characterStatus = CharactersStatus.transform.GetChild(i);
+            TextMeshProUGUI describe = characterStatus.Find("Describe").GetComponent<TextMeshProUGUI>();
+            CharacterStatus character = resourceManager.GetCharacterStatus(characterId);
+            describe.text = character.ToString();
+            var waterSign = characterStatus.transform.Find("Avatar/WaterSign").gameObject;
+            var foodSign = characterStatus.transform.Find("Avatar/FoodSign").gameObject;
+            var stateSign = characterStatus.transform.Find("Avatar/StateSign").gameObject;
+            if (character.GetValue(StatusType.Thirsty) <= 2)
+                waterSign.SetActive(true);
+            else waterSign.SetActive(false);
+            if (character.GetValue(StatusType.Hungry) <= 2)
+                foodSign.SetActive(true);
+            else foodSign.SetActive(false);
+            if (character.liveStatus != LiveStatus.Normal)
+                stateSign.SetActive(true);
+            else stateSign.SetActive(false);
+        }
 
-        Toggle prepareToggle = PreparePage.transform.Find("PrepareToggle").GetComponent<Toggle>();
+        Toggle prepareToggle = PreparePage.Find("PrepareToggle").GetComponent<Toggle>();
         prepareToggle.isOn = exploreManager.PrepareExplore;
         foreach (var characterToggle in ExploreCharacters.GetComponentsInChildren<Toggle>())
         {
             characterToggle.isOn = false;
         }
+        currItemIndex = -1;
+        imageItem.sprite = defaultItemSprite;
     }
 
     public void NextItem()
@@ -73,7 +97,7 @@ public class ExploryPage : MonoBehaviour
         if (currItemIndex == itemList.Count)
         {
             currItemIndex = -1;
-            imageItem.sprite = noneItemSprite;
+            imageItem.sprite = defaultItemSprite;
             return;
         }
         currItemIndex %= itemList.Count;
@@ -85,7 +109,7 @@ public class ExploryPage : MonoBehaviour
         currItemIndex -= 1;
         if (currItemIndex == -1)
         {
-            imageItem.sprite = noneItemSprite;
+            imageItem.sprite = defaultItemSprite;
             return;
         }
         if (currItemIndex < 0)

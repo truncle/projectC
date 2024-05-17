@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -90,6 +89,59 @@ namespace Util
         {
             return list2.All(item => list1.Contains(item));
         }
+
+        public static List<int> GetRandomIndices(List<int> rateList, int numIndices)
+        {
+            HashSet<int> randomIndices = new HashSet<int>();
+
+            while (randomIndices.Count < numIndices)
+            {
+                int randomIndex = Random.Range(0, rateList.Count);
+                randomIndices.Add(randomIndex);
+            }
+
+            return new List<int>(randomIndices);
+        }
+
+        public static List<List<int>> GetList2(string input, string sep = "|", string sep2 = ":")
+        {
+            List<List<int>> groups = new List<List<int>>();
+            string[] subgroups = input.Split(sep);
+            foreach (string subgroupStr in subgroups)
+            {
+                List<int> subgroup = subgroupStr.Split(sep2).Select(int.Parse).ToList();
+                groups.Add(subgroup);
+            }
+            return groups;
+        }
+
+        public static List<List<List<int>>> GetList3(string input, string sep = "|", string sep2 = "&", string sep3 = ":")
+        {
+            List<List<List<int>>> result = new();
+            string[] groups = input.Split(sep);
+            foreach (string group in groups)
+            {
+                List<List<int>> subgroup = new List<List<int>>();
+                string[] subgroups = group.Split(sep2);
+                foreach (string subgroupStr in subgroups)
+                {
+                    List<int> sublist = subgroupStr.Split(sep3).Select(int.Parse).ToList();
+                    subgroup.Add(sublist);
+                }
+                result.Add(subgroup);
+            }
+            return result;
+        }
+
+        //public static List<List<int>> List2()
+        //{
+
+        //}
+
+        //public static List<List<List<int>>> List3()
+        //{
+
+        //}
     }
 
 }

@@ -12,7 +12,7 @@ public enum ResourceType
 
 public enum StatusType
 {
-    Hungry, Thirsty, Mind
+    Hungry = 1, Thirsty
 }
 
 public enum LiveStatus
@@ -20,7 +20,7 @@ public enum LiveStatus
     Normal, Dead, Crazy
 }
 
-public struct CharacterStatus
+public class CharacterStatus
 {
     public int characterId;
     public Dictionary<StatusType, int> statusValues;
@@ -43,7 +43,7 @@ public struct CharacterStatus
 
     public override string ToString()
     {
-        return $"{characterId}: H:{GetValue(StatusType.Hungry)} T:{GetValue(StatusType.Thirsty)} M:{GetValue(StatusType.Mind)}";
+        return $"Id:{characterId} H:{GetValue(StatusType.Hungry)} T:{GetValue(StatusType.Thirsty)}";
     }
 }
 
@@ -69,32 +69,61 @@ public class ResourceManager : MonoBehaviour
     //初始化基本资源值
     public void Init()
     {
+        CharacterConstTable.Init();
         characters = new()
         {
-            new() { characterId = 1, statusValues = new() },
-            new() { characterId = 2, statusValues = new() },
-            new() { characterId = 3, statusValues = new() },
-            new() { characterId = 4, statusValues = new() },
+            //new() { characterId = 1, statusValues = new(){
+            //    {StatusType.Hungry, 12},
+            //    {StatusType.Thirsty, 12}
+            //}},
+            //new() { characterId = 2, statusValues = new(){
+            //    {StatusType.Hungry, 12},
+            //    {StatusType.Thirsty, 12}
+            //}},
+            //new() { characterId = 3, statusValues = new(){
+            //    {StatusType.Hungry, 12},
+            //    {StatusType.Thirsty, 12}
+            //}},
+            //new() { characterId = 4, statusValues = new(){
+            //    {StatusType.Hungry, 12},
+            //    {StatusType.Thirsty, 12}
+            //}},
         };
+        charactersTemp = new();
+        foreach (var characterConst in CharacterConstTable.datas)
+        {
+            CharacterStatus cs = new()
+            {
+                characterId = characterConst.id,
+                statusValues = new(),
+            };
+            CharacterStatus csTemp = new()
+            {
+                characterId = characterConst.id,
+                statusValues = new(),
+            };
+            foreach (var data in characterConst.statesInitial)
+            {
+                cs.statusValues[(StatusType)data[0]] = data[1];
+                csTemp.statusValues[(StatusType)data[0]] = data[1];
+            }
+            characters.Add(cs);
+            charactersTemp.Add(csTemp);
+        }
+
         resourceValues = new()
         {
-            { ResourceType.Water, 100 },
-            { ResourceType.Food, 100 },
+            { ResourceType.Water, 5 },
+            { ResourceType.Food, 5 },
         };
+        resourceValuesTemp = new(resourceValues);
+
         items = new()
         {
             1,3,5
         };
-
-        charactersTemp = new()
-        {
-            new() { characterId = 1, statusValues = new() },
-            new() { characterId = 2, statusValues = new() },
-            new() { characterId = 3, statusValues = new() },
-            new() { characterId = 4, statusValues = new() },
-        };
-        resourceValuesTemp = new(resourceValues);
         itemsTemp = new(items);
+
         resourceAlloc = new();
     }
 
@@ -222,6 +251,16 @@ public class ResourceManager : MonoBehaviour
         });
     }
 
+    public bool UpdateCharacter(int characterId, StatusType statusType, int value)
+    {
+        return UpdateCharacter(new()
+        {
+            characterId = characterId,
+            statusValues = new() { { statusType, value } },
+        });
+    }
+
+
     public int GetResourceNum(ResourceType type)
     {
         return resourceValues.GetValueOrDefault(type);
@@ -271,10 +310,45 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
+    //每天结束时结算资源消耗
+    public void SettleDayResource()
+    {
+        MiscData resConsume = MiscTable.Get("res_consume");
+        for (int i = 0; i < charactersTemp.Count; i++)
+        {
+            var character = charactersTemp[i];
+            var characterConst = CharacterConstTable.Get(character.characterId);
+            int hungryLimit = characterConst.statesLimit[0][1];
+            int thirstyLimit = characterConst.statesLimit[1][1];
+            if (character.liveStatus == LiveStatus.Dead)
+                continue;
+            var allocateResource = resourceAlloc.GetValueOrDefault(character.characterId);
+            if (allocateResource != null)
+            {
+                if (allocateResource.GetValueOrDefault(ResourceType.Water) >= 1)
+                    character.statusValues[StatusType.Thirsty] = thirstyLimit;
+                if (allocateResource.GetValueOrDefault(ResourceType.Food) >= 1)
+                    character.statusValues[StatusType.Hungry] = hungryLimit;
+            }
+            character.statusValues[StatusType.Thirsty] += int.Parse(resConsume.para1);
+            character.statusValues[StatusType.Hungry] += int.Parse(resConsume.para2);
+            if (character.statusValues[StatusType.Thirsty] <= 0)
+            {
+                character.liveStatus = LiveStatus.Dead;
+            }
+            if (character.statusValues[StatusType.Hungry] <= 0)
+            {
+                character.liveStatus = LiveStatus.Dead;
+            }
+        }
+        SyncResource();
+    }
+
     //将资源变更同步到当前资源
     public void SyncResource()
     {
-        characters = new();
+        resourceAlloc.Clear();
+        characters.Clear();
         foreach (var characterInfo in charactersTemp)
         {
             characters.Add(

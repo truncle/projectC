@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Table;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -14,42 +17,63 @@ public class DiaryPanel : MonoBehaviour
     private ContentManager contentManager;
     private ExploreManager exploreManager;
 
-    private int currPage = 0;
-    private List<GameObject> dairyPages;
+    private int currPageIndex = 0;
+    private List<GameObject> diaryPages = new();
+    private List<GameObject> enablePages;
 
     private GameObject prevPageBtn;
-
-
+    private GameObject closePageBtn;
+    private GameObject openPageBtn;
 
     private void Start()
     {
         gameManager = GameManager.Instance;
         maingameManagers = GameObject.Find("MaingameManagers");
         prevPageBtn = GameObject.Find("PrevPageBtn");
+        closePageBtn = gameObject.transform.Find("ClosePanelBtn").gameObject;
+        openPageBtn = transform.parent.Find("OpenPanelBtn").gameObject;
         resourceManager = maingameManagers.GetComponent<ResourceManager>();
         processManager = maingameManagers.GetComponent<ProcessManager>();
         contentManager = maingameManagers.GetComponent<ContentManager>();
         exploreManager = maingameManagers.GetComponent<ExploreManager>();
-    }
 
+        prevPageBtn.SetActive(false);
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (currPage == 0)
-            prevPageBtn.SetActive(false);
-        else
-            prevPageBtn.SetActive(true);
+    }
 
+    public void InitRoundPages()
+    {
+        MiscData exploreLimit1 = MiscTable.Get("explore_limit_1");
+
+        if (diaryPages.Count <= 0)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                diaryPages.Add(transform.GetChild(i).gameObject);
+            }
+        }
+        if (processManager != null && exploreManager != null
+            && (processManager.CurrentDay == Convert.ToInt32(exploreLimit1.para4) || exploreManager.exploreState == ExploreState.Exploring))
+        {
+            enablePages = diaryPages.Where(p => p.name != "Explory").ToList();
+        }
+        else
+        {
+            enablePages = new(diaryPages);
+        }
     }
 
     public void NextPage()
     {
-        if (currPage <= 2)
+        if (currPageIndex < enablePages.Count - 1)
         {
-            GameObject page = transform.GetChild(currPage).gameObject;
-            currPage = currPage + 1;
-            GameObject nextPage = transform.GetChild(currPage).gameObject;
+            GameObject page = enablePages[currPageIndex];
+            currPageIndex = currPageIndex + 1;
+            GameObject nextPage = enablePages[currPageIndex];
             page.SetActive(false);
             nextPage.SetActive(true);
             if (nextPage.name == "Explory")
@@ -64,31 +88,33 @@ public class DiaryPanel : MonoBehaviour
                     nextPage.transform.Find("PreparePage").gameObject.SetActive(false);
                     nextPage.transform.Find("StartingPage").gameObject.SetActive(true);
                 }
-                else
-                {
-                    NextPage();
-                }
             }
         }
         else
         {
+            GameObject page = enablePages[currPageIndex];
+            page.SetActive(false);
             processManager.EndCurrentDay();
             processManager.InitCurrentDay();
-            GameObject page = transform.GetChild(currPage).gameObject;
-            currPage = 0;
-            GameObject nextPage = transform.GetChild(currPage).gameObject;
-            page.SetActive(false);
+            currPageIndex = 0;
+            GameObject nextPage = enablePages[currPageIndex];
             nextPage.SetActive(true);
+            ClosePanel(openPageBtn);
         }
+
+        if (currPageIndex == 0)
+            prevPageBtn.SetActive(false);
+        else
+            prevPageBtn.SetActive(true);
     }
 
     public void PrevPage()
     {
-        if (currPage <= 0)
+        if (currPageIndex <= 0)
             return;
-        GameObject page = transform.GetChild(currPage).gameObject;
-        currPage = currPage - 1;
-        GameObject prevPage = transform.GetChild(currPage).gameObject;
+        GameObject page = enablePages[currPageIndex];
+        currPageIndex = currPageIndex - 1;
+        GameObject prevPage = enablePages[currPageIndex];
         page.SetActive(false);
         prevPage.SetActive(true);
         if (prevPage.name == "Explory")
@@ -103,17 +129,18 @@ public class DiaryPanel : MonoBehaviour
                 prevPage.transform.Find("PreparePage").gameObject.SetActive(false);
                 prevPage.transform.Find("StartingPage").gameObject.SetActive(true);
             }
-            else
-            {
-                PrevPage();
-            }
         }
+
+        if (currPageIndex == 0)
+            prevPageBtn.SetActive(false);
+        else
+            prevPageBtn.SetActive(true);
     }
 
     public void OpenPanel(GameObject go)
     {
-        go.SetActive(false);
         gameObject.SetActive(true);
+        go.SetActive(false);
     }
 
     public void ClosePanel(GameObject go)

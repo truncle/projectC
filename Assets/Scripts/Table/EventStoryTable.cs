@@ -20,7 +20,7 @@ namespace Table
         public List<List<int>> getItem;
         public List<List<List<int>>> getRes;
         public List<List<List<int>>> lostRes;
-        public List<List<int>> statusChange; // 状态改变
+        public List<List<List<int>>> statusChange; // 状态改变
         public List<List<Condition>> include;
         public List<List<Condition>> exclude;
         public List<List<Condition>> priorityBranch;
@@ -55,7 +55,7 @@ namespace Table
                 data.getItem = rawTable.GetList2<int>("getItem", row);
                 data.getRes = rawTable.GetList3<int>("getRes", row);
                 data.lostRes = rawTable.GetList3<int>("lostRes", row);
-                data.statusChange = rawTable.GetList2<int>("statusChange", row);
+                data.statusChange = rawTable.GetList3<int>("statusChange", row);
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
                 data.priorityBranch = GameUtil.GetConditionSet(rawTable.Get("priorityBranch", row));

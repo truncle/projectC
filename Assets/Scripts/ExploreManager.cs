@@ -30,7 +30,6 @@ public class ExploreManager : MonoBehaviour
     private ProcessManager processManager;
     private ContentManager contentManager;
 
-
     //探索状态
     public ExploreState exploreState = ExploreState.Idle;
     public bool PrepareExplore { get; set; } = false;
@@ -47,7 +46,6 @@ public class ExploreManager : MonoBehaviour
 
     public Dictionary<int, int> lastExploreTime = new();
     public Dictionary<int, int> groupExploreNum = new();
-
 
     void Start()
     {
@@ -77,7 +75,7 @@ public class ExploreManager : MonoBehaviour
         ExploreOption option = contentManager.GetExploreOption();
         if (option.characterId <= 0)
         {
-            PrepareExplore = false;
+            exploreState = ExploreState.Idle;
             return;
         }
 
@@ -92,9 +90,22 @@ public class ExploreManager : MonoBehaviour
                 groupId = Config.GroupBase + Random.Range(1, Config.GroupNum + 1);
             }
             while (groupSet.Contains(groupId));
+            groupSet.Add(groupId);
         }
-        int exploreReturnDay = Random.Range(6, 9);//todo 配置
-        int exploreNum = Mathf.Max(groupExploreNum.GetValueOrDefault(groupId), 1);
+
+        //读取配置
+        MiscData exploreLimit1 = MiscTable.Get("explore_limit_1");
+        MiscData exploreLimit2 = MiscTable.Get("explore_limit_2");
+        int exploreReturnDay = 1;
+        if (processManager.CurrentDay <= System.Convert.ToInt32(exploreLimit1.para4))
+        {
+            exploreReturnDay = System.Convert.ToInt32(exploreLimit1.para3);
+        }
+        else
+        {
+            exploreReturnDay = System.Convert.ToInt32(exploreLimit2.para3);
+        }
+        int exploreNum = groupExploreNum.GetValueOrDefault(groupId) + 1;
 
         Debug.Log($"groupId: {groupId}");
         Debug.Log($"exploreNum: {exploreNum}");
@@ -127,10 +138,15 @@ public class ExploreManager : MonoBehaviour
             exploreDay++;
             return;
         }
-        //todo 计算探索结果, 失败, 一般, 成功, 大成功
-        int resultIndex = 0;
+        //计算探索结果, 失败, 一般, 成功, 大成功
+        MiscData data = MiscTable.Get("explore_res_get");
+        var resList = GameUtil.GetList3(data.para1);
+        List<int> rateList = data.para2.Split("|").Select(int.Parse).ToList();
+        int resultIndex = GameUtil.GetRandomIndices(rateList, resList.Count).First();
+        List<List<int>> getResource = resList[resultIndex];
 
-        //根据结果提供奖励, 道具和资源变化, 获取量通过misc表配置
+        //根据结果提供奖励, 道具和资源变化
+        resourceManager.AddResource(getResource);
 
         //根据携带道具提供额外奖励, 道具和资源变化
         int extraIndex = exploreData.provideItem.IndexOf(carryItem) + 1;
@@ -148,8 +164,7 @@ public class ExploreManager : MonoBehaviour
         groupExploreNum[exploreData.groupId] = exploreNum + 1;
 
         //更新事件结果的显示
-        DisplayExploreEnd(exploreData, resultIndex);
-        //ShowExploreData(data, resultIndex);
+        DisplayExploreEnd(exploreData, 0);
 
         ClearData();
     }
@@ -217,17 +232,9 @@ public class ExploreManager : MonoBehaviour
     {
         Debug.Log("end explore id: " + exploreData.id);
         string endExploreText = TextTable.GetText(exploreData.endTextContent[end]);
-        Debug.Log(string.Format("end explore text:{0}", endExploreText));
+        //Debug.Log(string.Format("end explore text:{0}", endExploreText));
         contentManager.JournalText.AppendLine();
         contentManager.JournalText.AppendLine(endExploreText);
-    }
-
-    //展示
-    private void ShowExploreData(ExploreData storyData, int end = -1)
-    {
-        Debug.Log("Show explore data id: " + storyData.id);
-        if (end >= 0)
-            Debug.Log(string.Format("end{0}, endText:{1}", end, storyData.endTextContent[end]));
     }
 
 }

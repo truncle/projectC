@@ -30,6 +30,7 @@ public class ProcessManager : MonoBehaviour
         exploreManager = GetComponent<ExploreManager>();
         contentManager = GetComponent<ContentManager>();
         resourceManager.Init();
+        contentManager.Init();
 
         InitCurrentDay();
     }
@@ -58,7 +59,7 @@ public class ProcessManager : MonoBehaviour
     {
         Debug.Log("Init day" + CurrentDay);
         storylineManager.InitStoryline(CurrentDay);
-        contentManager.Sync();
+        contentManager.Sync(true);
     }
 
     //结算当天的各种选择和事件
@@ -66,9 +67,9 @@ public class ProcessManager : MonoBehaviour
     {
         Debug.Log("End day " + CurrentDay);
         contentManager.Clear();
-        storylineManager.SettleSotryline();
+        storylineManager.SettleStoryline();
         exploreManager.SettleDayExplore();
-        resourceManager.SyncResource();
+        resourceManager.SettleDayResource();
         CurrentDay += 1;
         contentManager.Sync();
         return true;
@@ -92,10 +93,6 @@ public class ProcessManager : MonoBehaviour
                         break;
                     case "THIRSTY":
                         value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).GetValue(StatusType.Thirsty);
-                        conditionValue = Convert.ToInt32(condition.param[1]);
-                        break;
-                    case "MIND":
-                        value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).GetValue(StatusType.Mind);
                         conditionValue = Convert.ToInt32(condition.param[1]);
                         break;
                     case "EVT":
@@ -144,7 +141,8 @@ public class ProcessManager : MonoBehaviour
     //保存探索结果
     public void SaveExploreResult(int id, int result)
     {
-        exploreRecord.Add(id, result);
+        //exploreRecord.Add(id, result);
+        exploreRecord[id] = result;
     }
 
 }
