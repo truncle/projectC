@@ -123,7 +123,6 @@ public class ExploreManager : MonoBehaviour
 
         // 更新事件结果的显示
         DisplayExploreStart(exploreData);
-        //ShowExploreData(data, resultIndex);
     }
 
     //检查探索结束
@@ -157,6 +156,12 @@ public class ExploreManager : MonoBehaviour
         if (exploreData.getRes.Any())
         {
             resourceManager.AddResource(exploreData.getRes[extraIndex]);
+        }
+
+        // 角色状态变化
+        if (exploreData.statusChange.Any())
+        {
+            resourceManager.UpdateCharacter(exploreData.statusChange[resultIndex][0], (LiveStatus)exploreData.statusChange[resultIndex][1]); ;
         }
 
         processManager.SaveExploreResult(exploreData.id, resultIndex);
@@ -221,20 +226,23 @@ public class ExploreManager : MonoBehaviour
 
     private void DisplayExploreStart(ExploreData exploreData)
     {
+        contentManager.PushExploreStart(exploreData);
         Debug.Log("start explore id: " + exploreData.id);
-        string startExploreText = TextTable.GetText(exploreData.textContent);
-        Debug.Log(string.Format("start explore text:{0}", startExploreText));
-        contentManager.JournalText.AppendLine();
-        contentManager.JournalText.AppendLine(startExploreText);
+        //string startExploreText = TextTable.GetText(exploreData.textContent);
+        //Debug.Log(string.Format("start explore text:{0}", startExploreText));
+        //contentManager.JournalText.AppendLine();
+        //contentManager.JournalText.AppendLine(startExploreText);
+
     }
 
     private void DisplayExploreEnd(ExploreData exploreData, int end)
     {
+        contentManager.PushExploreEnd(exploreData, end);
         Debug.Log("end explore id: " + exploreData.id);
-        string endExploreText = TextTable.GetText(exploreData.endTextContent[end]);
+        //string endExploreText = TextTable.GetText(exploreData.endTextContent[end]);
         //Debug.Log(string.Format("end explore text:{0}", endExploreText));
-        contentManager.JournalText.AppendLine();
-        contentManager.JournalText.AppendLine(endExploreText);
+        //contentManager.JournalText.AppendLine();
+        //contentManager.JournalText.AppendLine(endExploreText);
     }
 
 }

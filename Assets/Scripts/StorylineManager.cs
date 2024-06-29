@@ -111,10 +111,7 @@ public class StorylineManager : MonoBehaviour
         // 角色状态变化
         if (CurrentData.statusChange.Any())
         {
-            foreach (var singleChange in CurrentData.statusChange[resultIndex])
-            {
-                resourceManager.UpdateCharacter(singleChange[0], (StatusType)singleChange[1], singleChange[2]);
-            }
+            resourceManager.UpdateCharacter(CurrentData.statusChange[resultIndex][0], (LiveStatus)CurrentData.statusChange[resultIndex][1]);
         }
 
         processManager.SaveStorylineResult(CurrentData.id, resultIndex);
@@ -144,18 +141,18 @@ public class StorylineManager : MonoBehaviour
     private void DisplayContent(EventStoryData storyData)
     {
         Debug.Log("Show story data id: " + storyData.id);
-        string storyContent = TextTable.GetText(storyData.textContent);
+        //string storyContent = TextTable.GetText(storyData.textContent);
         //Debug.Log(string.Format("init story text:{0}", storyContent));
-        contentManager.StorylineContent.AppendLine(storyContent);
+        //contentManager.StorylineContent.AppendLine(storyContent);
     }
 
-    //改为通过ContentManager主动拉取
     private void DisplayEnding(EventStoryData storyData, int end)
     {
+        contentManager.PushStorylineEnd(storyData, end);
         Debug.Log("Show story ending id: " + storyData.id);
-        string storyEnding = TextTable.GetText(storyData.endTextContent[end]);
+        //string storyEnding = TextTable.GetText(storyData.endTextContent[end]);
         //Debug.Log(string.Format("end:{0}, endText:{1}", end, storyEnding));
-        contentManager.JournalText.AppendLine(storyEnding);
+        //contentManager.JournalText.AppendLine(storyEnding);
     }
 
 }

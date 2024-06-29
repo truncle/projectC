@@ -59,7 +59,7 @@ public class ProcessManager : MonoBehaviour
     {
         Debug.Log("Init day" + CurrentDay);
         storylineManager.InitStoryline(CurrentDay);
-        contentManager.Sync(true);
+        contentManager.Sync();
     }
 
     //结算当天的各种选择和事件
@@ -71,7 +71,7 @@ public class ProcessManager : MonoBehaviour
         exploreManager.SettleDayExplore();
         resourceManager.SettleDayResource();
         CurrentDay += 1;
-        contentManager.Sync();
+        //contentManager.Sync();
         return true;
     }
 

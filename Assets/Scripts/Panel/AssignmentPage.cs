@@ -72,12 +72,12 @@ public class AssignmentPage : MonoBehaviour
         GameObject checkMark = character.transform.Find("Food/CheckMark").gameObject;
         if (checkMark.activeSelf == false)
         {
-            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Food, 1);
+            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Food);
             if (!res) return;
         }
         else
         {
-            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Food, 1);
+            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Food);
             if (!res) return;
         }
         checkMark.SetActive(!checkMark.activeSelf);
@@ -88,12 +88,12 @@ public class AssignmentPage : MonoBehaviour
         GameObject checkMark = character.transform.Find("Water/CheckMark").gameObject;
         if (checkMark.activeSelf == false)
         {
-            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Water, 1);
+            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Water);
             if (!res) return;
         }
         else
         {
-            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Water, 1);
+            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Water);
             if (!res) return;
         }
         checkMark.SetActive(!checkMark.activeSelf);

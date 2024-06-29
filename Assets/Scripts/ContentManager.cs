@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +26,10 @@ public class ContentManager : MonoBehaviour
     private ExploreManager exploreManager;
     private StorylineManager storylineManager;
 
-    //这里包含界面显示需要的所有信息, 需要打包进存档
-    public StringBuilder JournalText { get; set; } = new();
-    public StringBuilder ExploreText { get; set; } = new();
-    public StringBuilder StorylineContent { get; set; } = new();
+    private JournalPageContent journalContent = new();
+    private AssignmentPageContent assignmentContent = new();
+    private ExploryPageContent exploryContent = new();
+    private StorylinePageContent storylineContent = new();
 
     private void Start()
     {
@@ -48,9 +50,11 @@ public class ContentManager : MonoBehaviour
 
     public void Clear()
     {
-        JournalText.Clear();
-        ExploreText.Clear();
-        StorylineContent.Clear();
+        journalContent = new();
+        assignmentContent = new();
+        exploryContent = new();
+        storylineContent = new();
+        GC.Collect();
     }
 
     public void Init()
@@ -63,16 +67,13 @@ public class ContentManager : MonoBehaviour
     //把内容同步到表现上
     public void Sync(bool isInit = false)
     {
-        if (isInit)
-        {
-            DiaryPanel.InitRoundPages();
-        }
+        DiaryPanel.InitRoundPages();
 
         TextMeshProUGUI dayTitle = DiaryPanel.transform.Find("DayTitle").GetComponent<TextMeshProUGUI>();
         dayTitle.text = $"第{processManager.CurrentDay}天";
 
         var JournalTextUI = JournalPage.transform.Find("TextContent").GetComponent<TextMeshProUGUI>();
-        JournalTextUI.text = JournalText.ToString();
+        JournalTextUI.text = BuildJournalPageContent();
 
         //更新分配页面角色状态
         AssignmentPage.Sync();
@@ -81,11 +82,45 @@ public class ContentManager : MonoBehaviour
         ExploryPage.Sync();
 
         var StorylineContentUI = StorylinePage.transform.Find("TextContent").GetComponent<TextMeshProUGUI>();
-        StorylineContentUI.text = StorylineContent.ToString();
+        StorylineContentUI.text = TextTable.GetText(storylineManager.CurrentData.textContent);
 
-        if (isInit)
-            CheckStorylineSelectGroup(storylineManager.CurrentData);
+        CheckStorylineSelectGroup(storylineManager.CurrentData);
     }
+
+    #region 用来收集其它模块产生的结果
+    public void PushStorylineEnd(EventStoryData storyData, int end)
+    {
+        journalContent.LastDayStoryData = storyData;
+        journalContent.StoryEnd = end;
+    }
+
+    public void PushExploreStart(ExploreData exploreData)
+    {
+        journalContent.ExploreStartData = exploreData;
+    }
+
+    public void PushExploreEnd(ExploreData exploreData, int end)
+    {
+        journalContent.ExploreFinishData = exploreData;
+        journalContent.ExploreEnd = end;
+    }
+    #endregion
+
+    #region 用来构建每个页面需要的参数
+
+    //todo 暂时使用, 后续页面需要进行结构调整
+    public string BuildJournalPageContent()
+    {
+        StringBuilder sb = new();
+        if (journalContent.LastDayStoryData.HasValue)
+            sb.AppendLine('\n' + journalContent.GetLastStoryEndText());
+        if (journalContent.ExploreStartData.HasValue)
+            sb.AppendLine('\n' + journalContent.GetExploreStartText());
+        if (journalContent.ExploreFinishData.HasValue)
+            sb.AppendLine('\n' + journalContent.GetExploreFinishText());
+        return sb.ToString();
+    }
+    #endregion
 
     //开始探索的选择参数
     public ExploreOption GetExploreOption()
@@ -134,3 +169,52 @@ public class ContentManager : MonoBehaviour
             StorylinePage.SelectGroup.gameObject.SetActive(true);
     }
 }
+
+#region 把单一页面上需要的数据都存在一个结构里, 方便管理以及存档。Manager内已有的数据不包括在内
+public class JournalPageContent
+{
+    public EventStoryData? LastDayStoryData;
+    public ExploreData? ExploreStartData;
+    public ExploreData? ExploreFinishData;
+    public int StoryEnd;
+    public int ExploreEnd;
+
+    public string GetLastStoryEndText()
+    {
+        string endText = string.Empty;
+        if (LastDayStoryData.HasValue)
+            endText = TextTable.GetText(LastDayStoryData.Value.endTextContent[StoryEnd]);
+        return endText;
+    }
+
+    public string GetExploreStartText()
+    {
+        string startText = string.Empty;
+        if (ExploreStartData.HasValue)
+            startText = TextTable.GetText(ExploreStartData.Value.textContent);
+        return startText;
+    }
+
+    public string GetExploreFinishText()
+    {
+        string endText = string.Empty;
+        if (ExploreFinishData.HasValue)
+            endText = TextTable.GetText(ExploreFinishData.Value.endTextContent[ExploreEnd]);
+        return endText;
+    }
+}
+
+public class AssignmentPageContent
+{
+
+}
+public class ExploryPageContent
+{
+
+}
+
+public class StorylinePageContent
+{
+
+}
+#endregion
