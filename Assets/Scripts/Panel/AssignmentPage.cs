@@ -11,7 +11,7 @@ public class AssignmentPage : MonoBehaviour
     GameManager gameManager;
     GameObject maingameManagers;
     ResourceManager resourceManager;
-    private List<GameObject> assignCharacters = new();
+    public List<GameObject> assignCharacters = new();
 
     GameObject selectWaterBtn;
     GameObject selectFoodBtn;

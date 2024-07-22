@@ -17,11 +17,11 @@ namespace Table
         public int groupId;
         public int returnDays;
         public List<int> endTextContent;
-        public List<int> failRate; //对应角色的探索失败率
+        //public List<int> failRate; //对应角色的探索失败率
         public List<int> provideItem; //可以提供的道具
         public List<int> getItem;
         public List<List<List<int>>> getRes;
-        public List<List<int>> statusChange;
+        //public List<List<int>> statusChange;
         public List<List<Condition>> include;
         public List<List<Condition>> exclude;
     }
@@ -45,13 +45,13 @@ namespace Table
                 data.groupId = Convert.ToInt32(rawTable.Get("groupId", row));
                 data.returnDays = Convert.ToInt32(rawTable.Get("returnDays", row));
                 data.endTextContent = rawTable.GetList<int>("endTextContent", row, "|");
-                data.failRate = rawTable.GetList<int>("failRate", row, "|");
+                //data.failRate = rawTable.GetList<int>("failRate", row, "|");
                 data.provideItem = rawTable.GetList<int>("provideItem", row, "|");
                 data.getItem = rawTable.GetList<int>("getItem", row, "|");
                 data.getRes = rawTable.GetList3<int>("getRes", row, "|");
                 data.include = GameUtil.GetConditionSet(rawTable.Get("include", row));
                 data.exclude = GameUtil.GetConditionSet(rawTable.Get("exclude", row));
-                data.statusChange = rawTable.GetList2<int>("statusChange", row, "|");
+                //data.statusChange = rawTable.GetList2<int>("statusChange", row, "|");
                 datas.Add(data);
             }
         }

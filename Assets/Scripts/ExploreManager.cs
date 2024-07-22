@@ -4,7 +4,6 @@ using Table;
 using Util;
 using UnityEngine;
 using System.Linq;
-using Unity.VisualScripting;
 
 //用于判断和控制故事探索内容
 
@@ -20,6 +19,7 @@ public enum ExploreResult
 
 public struct ExploreOption
 {
+    public bool prepareExplore;
     public int characterId;
     public int carryItem;
 }
@@ -35,7 +35,7 @@ public class ExploreManager : MonoBehaviour
     public bool PrepareExplore { get; set; } = false;
 
     //已选择的组别和选中的组别
-    public HashSet<int> groupSet = new();
+    public HashSet<int> checkedGroupSet = new();
     public int selectedGroup = 0;
 
     //探索中信息
@@ -89,8 +89,8 @@ public class ExploreManager : MonoBehaviour
             {
                 groupId = Config.GroupBase + Random.Range(1, Config.GroupNum + 1);
             }
-            while (groupSet.Contains(groupId));
-            groupSet.Add(groupId);
+            while (checkedGroupSet.Contains(groupId));
+            checkedGroupSet.Add(groupId);
         }
 
         //读取配置
@@ -159,10 +159,10 @@ public class ExploreManager : MonoBehaviour
         }
 
         // 角色状态变化
-        if (exploreData.statusChange.Any())
-        {
-            resourceManager.UpdateCharacter(exploreData.statusChange[resultIndex][0], (LiveStatus)exploreData.statusChange[resultIndex][1]); ;
-        }
+        //if (exploreData.statusChange.Any())
+        //{
+        //    resourceManager.UpdateCharacter(exploreData.statusChange[resultIndex][0], (LiveStatus)exploreData.statusChange[resultIndex][1]); ;
+        //}
 
         processManager.SaveExploreResult(exploreData.id, resultIndex);
         int exploreNum = groupExploreNum.GetValueOrDefault(exploreData.groupId);

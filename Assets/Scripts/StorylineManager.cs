@@ -5,7 +5,6 @@ using System.Linq;
 using Table;
 using Util;
 
-
 public enum EventStoryType
 {
     Normal = 1, Select, ItemSelect, GroupSelect, FirstDay
@@ -15,11 +14,6 @@ public enum EventStoryType
 public class StorylineManager : MonoBehaviour
 {
     public EventStoryData CurrentData;
-
-    //这个事件的决策数据
-    public int option = 0;
-    public int provideItemId = 0;
-    public bool IsChecked { get; private set; }
 
     private ResourceManager resourceManager;
     private ProcessManager processManager;
@@ -58,7 +52,6 @@ public class StorylineManager : MonoBehaviour
             CurrentData = pool2[Random.Range(0, pool2.Count)];
         else if (pool1.Any()) CurrentData = pool1[Random.Range(0, pool1.Count)];
         else return;
-        IsChecked = CurrentData.endTextContent.Count <= 1;
 
         //将初始化好的数据填充到ContentManager中等待显示
         DisplayContent(CurrentData);
@@ -74,23 +67,18 @@ public class StorylineManager : MonoBehaviour
     //清除当前事件所有信息
     private void ClearData()
     {
-        option = 0;
-        provideItemId = 0;
-        IsChecked = false;
     }
 
     //结算当前事件结果
     public void SettleStoryline()
     {
-        int resultIndex = option;
-        if (CurrentData.eventType == (int)EventStoryType.ItemSelect)
-            resultIndex = CurrentData.provideItem.IndexOf(provideItemId) + 1;
+        int resultIndex = contentManager.GetStorylineOption();
 
         if (CurrentData.eventType == (int)EventStoryType.GroupSelect)
         {
-            List<int> groupList = exploreManager.groupSet.ToList();
+            List<int> groupList = exploreManager.checkedGroupSet.ToList();
             groupList.Sort();
-            exploreManager.selectedGroup = groupList[option];
+            exploreManager.selectedGroup = groupList[resultIndex];
         }
 
         //根据结果提供奖励, 道具和资源变化
@@ -105,7 +93,7 @@ public class StorylineManager : MonoBehaviour
         }
         //if (CurrentData.lostRes.Any())
         //{
-        //    resourceManager.DeductResource(CurrentData.getRes[resultIndex]);
+        //    resourceManager.DeductResource(CurrentData.lostRes[resultIndex]);
         //}
 
         // 角色状态变化
@@ -117,24 +105,6 @@ public class StorylineManager : MonoBehaviour
         processManager.SaveStorylineResult(CurrentData.id, resultIndex);
         //将初始化好的数据填充到ContentManager中等待显示
         DisplayEnding(CurrentData, resultIndex);
-    }
-
-    public void Select(int option)
-    {
-        this.option = option;
-        IsChecked = true;
-        if (CurrentData.provideRes.Any())
-        {
-            resourceManager.DeductResource(CurrentData.provideRes);
-        }
-    }
-
-    public bool ProvideItem(int itemId)
-    {
-        bool result = resourceManager.DeductItem(itemId);
-        if (result)
-            provideItemId = itemId;
-        return result;
     }
 
     //改为通过ContentManager主动拉取

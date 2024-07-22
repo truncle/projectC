@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,22 +8,23 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using Util;
 
 //将每轮处理结果汇总成文本展示
 public class ContentManager : MonoBehaviour
 {
     private GameObject MaingameUI;
-    private DiaryPanel DiaryPanel;
+    public DiaryPanel DiaryPanel;
 
-    private JournalPage JournalPage;
-    private AssignmentPage AssignmentPage;
-    private ExploryPage ExploryPage;
-    private StorylinePage StorylinePage;
+    public JournalPage JournalPage;
+    public AssignmentPage AssignmentPage;
+    public ExploryPage ExploryPage;
+    public StorylinePage StorylinePage;
 
-    private ResourceManager resourceManager;
-    private ProcessManager processManager;
-    private ExploreManager exploreManager;
-    private StorylineManager storylineManager;
+    public ResourceManager resourceManager;
+    public ProcessManager processManager;
+    public ExploreManager exploreManager;
+    public StorylineManager storylineManager;
 
     private JournalPageContent journalContent = new();
     private AssignmentPageContent assignmentContent = new();
@@ -122,6 +122,11 @@ public class ContentManager : MonoBehaviour
     }
     #endregion
 
+    public int GetStorylineOption()
+    {
+        return StorylinePage.GetStorylineOption();
+    }
+
     //开始探索的选择参数
     public ExploreOption GetExploreOption()
     {
@@ -145,19 +150,21 @@ public class ContentManager : MonoBehaviour
             //    StorylinePage.SelectGroup.transform.GetChild(i).gameObject.SetActive(false);
             for (int i = 0; i < storyData.provideItem.Count; i++)
             {
-                StorylinePage.SelectGroup.transform.GetChild(i).gameObject.SetActive(true);
+                GameObject option = StorylinePage.SelectGroup.transform.GetChild(i).gameObject;
+                option.SetActive(true);
                 //todo 更换道具图片
+                option.GetComponentInChildren<Image>().sprite = SpriteLoader.GetItemSprite(storyData.provideItem[i]);
             }
         }
         else if (storyData.eventType == (int)EventStoryType.GroupSelect)
         {
             StorylinePage.SelectGroup = StorylinePage.MultiSelectGroup;
-            List<int> groupList = exploreManager.groupSet.ToList();
+            List<int> groupList = exploreManager.checkedGroupSet.ToList();
             groupList.Sort();
             for (int i = 0; i < groupList.Count; i++)
             {
                 StorylinePage.SelectGroup.transform.GetChild(i).gameObject.SetActive(true);
-                //todo 更换道具图片, 组id对应显示内容
+                //todo 更换组id对应显示内容
             }
         }
         else

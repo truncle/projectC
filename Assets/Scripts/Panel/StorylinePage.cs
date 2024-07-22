@@ -28,12 +28,26 @@ public class StorylinePage : MonoBehaviour
         nextPage = transform.parent.Find("NextPageBtn").gameObject;
     }
 
-    // Update is called once per frame
-    void Update()
+    public int GetStorylineOption()
     {
         if (SelectGroup != null)
         {
-            if (SelectGroup.ActiveToggles().Any())
+            Toggle[] toggles = SelectGroup.GetComponentsInChildren<Toggle>().OrderBy(c => c.transform.GetSiblingIndex()).ToArray();
+            for (int index = 0; index < toggles.Length; index++)
+            {
+                if (toggles[index].isOn)
+                    return index;
+            }
+        }
+        return 0;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (SelectGroup != null && ItemGroup.IsActive() == false)
+        {
+            if (SelectGroup.AnyTogglesOn())
                 nextPage.SetActive(true);
             else nextPage.SetActive(false);
         }

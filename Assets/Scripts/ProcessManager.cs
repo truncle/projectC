@@ -45,7 +45,7 @@ public class ProcessManager : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Z))
         {
-            storylineManager.Select(1);
+            //storylineManager.Select(1);
         }
         else if (Input.GetKeyDown(KeyCode.E))
         {

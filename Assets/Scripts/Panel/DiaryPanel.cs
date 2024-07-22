@@ -27,6 +27,14 @@ public class DiaryPanel : MonoBehaviour
 
     private void Start()
     {
+        Init();
+        prevPageBtn.SetActive(false);
+    }
+
+    public void Init()
+    {
+        if (gameManager != null)
+            return;
         gameManager = GameManager.Instance;
         maingameManagers = GameObject.Find("MaingameManagers");
         prevPageBtn = GameObject.Find("PrevPageBtn");
@@ -36,8 +44,6 @@ public class DiaryPanel : MonoBehaviour
         processManager = maingameManagers.GetComponent<ProcessManager>();
         contentManager = maingameManagers.GetComponent<ContentManager>();
         exploreManager = maingameManagers.GetComponent<ExploreManager>();
-
-        prevPageBtn.SetActive(false);
     }
 
     // Update is called once per frame

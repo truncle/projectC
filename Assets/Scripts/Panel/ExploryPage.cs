@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
+using Util;
 
 public class ExploryPage : MonoBehaviour
 {
@@ -18,15 +19,13 @@ public class ExploryPage : MonoBehaviour
 
     private Transform CharactersStatus;
 
-    private Transform ExploreCharacters;
+    public Transform ExploreCharacters;
 
-    private List<int> itemList;
-
-    private List<Sprite> itemSprites = new();
+    public List<int> itemList;
 
     private Sprite defaultItemSprite;
 
-    private int currItemIndex = -1;
+    public int currItemIndex = -1;
 
     private Image imageItem;
 
@@ -47,7 +46,6 @@ public class ExploryPage : MonoBehaviour
         CharactersStatus = PreparePage.transform.Find("CharactersStatus");
         ExploreCharacters = StartingPage.transform.Find("ExploreCharacters");
 
-        itemSprites = new(Resources.LoadAll<Sprite>("Pictures/items"));
         imageItem = StartingPage.transform.Find("SelectItem/Item").GetComponent<Image>();
     }
 
@@ -81,6 +79,7 @@ public class ExploryPage : MonoBehaviour
             else stateSign.SetActive(false);
         }
 
+        itemList = resourceManager.itemsTemp.ToList();
         Toggle prepareToggle = PreparePage.Find("PrepareToggle").GetComponent<Toggle>();
         prepareToggle.isOn = exploreManager.PrepareExplore;
         foreach (var characterToggle in ExploreCharacters.GetComponentsInChildren<Toggle>())
@@ -93,7 +92,7 @@ public class ExploryPage : MonoBehaviour
 
     public void NextItem()
     {
-        currItemIndex += 1;
+        currItemIndex++;
         if (currItemIndex == itemList.Count)
         {
             currItemIndex = -1;
@@ -101,7 +100,7 @@ public class ExploryPage : MonoBehaviour
             return;
         }
         currItemIndex %= itemList.Count;
-        imageItem.sprite = itemSprites[currItemIndex];
+        imageItem.sprite = SpriteLoader.GetItemSprite(itemList[currItemIndex]);
     }
 
     public void PrevItem()
@@ -114,7 +113,7 @@ public class ExploryPage : MonoBehaviour
         }
         if (currItemIndex < 0)
             currItemIndex = itemList.Count - 1;
-        imageItem.sprite = itemSprites[currItemIndex];
+        imageItem.sprite = SpriteLoader.GetItemSprite(itemList[currItemIndex]);
     }
 
     public ExploreOption GetExploreOption()

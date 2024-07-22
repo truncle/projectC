@@ -57,7 +57,7 @@ namespace Table
                 data.type = Convert.ToInt32(rawTable.Get("type", row));
                 if (data.type == 1)
                 {
-                    data.dropList = rawTable.GetList2<int>("content", row, "|", ";");
+                    data.dropList = rawTable.GetList2<int>("content", row, "|");
                 }
                 else if (data.type == 2)
                 {

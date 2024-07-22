@@ -133,15 +133,6 @@ namespace Util
             return result;
         }
 
-        //public static List<List<int>> List2()
-        //{
-
-        //}
-
-        //public static List<List<List<int>>> List3()
-        //{
-
-        //}
     }
 
 }
