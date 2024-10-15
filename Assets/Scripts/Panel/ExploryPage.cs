@@ -57,7 +57,7 @@ public class ExploryPage : MonoBehaviour
 
     public void Sync()
     {
-        // todo ���½�ɫ״̬չʾ�ı�
+        // todo 更新角色状态展示文本
         for (int i = 0; i < CharactersStatus.childCount; i++)
         {
             var characterId = i + 1;

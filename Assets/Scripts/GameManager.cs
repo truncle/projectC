@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	//ÓÎÏ·Æô¶¯Ê±¶ÁÈ¡µÄ±í
+	//æ¸¸æˆå¯åŠ¨æ—¶è¯»å–çš„è¡¨
 	private void LoadTables()
 	{
 	}

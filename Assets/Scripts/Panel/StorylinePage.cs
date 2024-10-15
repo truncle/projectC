@@ -28,6 +28,11 @@ public class StorylinePage : MonoBehaviour
         nextPage = transform.parent.Find("NextPageBtn").gameObject;
     }
 
+    public void Sync()
+    {
+        UncheckAllToggles();
+    }
+
     public int GetStorylineOption()
     {
         if (SelectGroup != null)
@@ -40,6 +45,17 @@ public class StorylinePage : MonoBehaviour
             }
         }
         return 0;
+    }
+
+    public void UncheckAllToggles()
+    {
+        if (SelectGroup != null)
+        {
+            foreach (var toggle in SelectGroup.GetComponentsInChildren<Toggle>())
+            {
+                toggle.isOn = false;
+            }
+        }
     }
 
     // Update is called once per frame

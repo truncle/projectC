@@ -10,7 +10,7 @@ public enum EventStoryType
     Normal = 1, Select, ItemSelect, GroupSelect, FirstDay
 }
 
-//ÓÃÓÚÅĞ¶ÏºÍ¿ØÖÆ¹ÊÊÂÖ÷ÏßÄÚÈİ
+//ç”¨äºåˆ¤æ–­å’Œæ§åˆ¶æ•…äº‹ä¸»çº¿å†…å®¹
 public class StorylineManager : MonoBehaviour
 {
     public EventStoryData CurrentData;
@@ -32,44 +32,44 @@ public class StorylineManager : MonoBehaviour
     public void InitStoryline(int day)
     {
         ClearData();
-        //Ê×´ÎÉ¸Ñ¡, É¸³öËùÓĞÂú×ãÌõ¼şµÄÊÂ¼ş
+        //é¦–æ¬¡ç­›é€‰, ç­›å‡ºæ‰€æœ‰æ»¡è¶³æ¡ä»¶çš„äº‹ä»¶
         List<EventStoryData> pool1 = EventStoryTable.datas.Where(e =>
-            //¸ù¾İincludeºÍexcludeÉ¸Ñ¡
+            //æ ¹æ®includeå’Œexcludeç­›é€‰
             e.day.Contains(day)
             && processManager.CanMeetCondition(e.include)
             && !processManager.CanMeetCondition(e.exclude, false)
         ).ToList();
 
-        //¶ş´ÎÉ¸Ñ¡, ¸ù¾İÓÅÏÈÌõ¼ş½øĞĞÉ¸Ñ¡
+        //äºŒæ¬¡ç­›é€‰, æ ¹æ®ä¼˜å…ˆæ¡ä»¶è¿›è¡Œç­›é€‰
         List<EventStoryData> pool2 = pool1.Where((EventStoryData e) =>
         {
-            //¸ù¾İpriorityBranch½øĞĞÉ¸Ñ¡
+            //æ ¹æ®priorityBranchè¿›è¡Œç­›é€‰
             return processManager.CanMeetCondition(e.priorityBranch);
         }).ToList();
 
-        //×îºó´Ó½á¹ûÁĞ±íÖĞËæ»úÑ¡ÔñÒ»¸ö×÷Îªµ±ÌìµÄ¹ÊÊÂ½Úµã
+        //æœ€åä»ç»“æœåˆ—è¡¨ä¸­éšæœºé€‰æ‹©ä¸€ä¸ªä½œä¸ºå½“å¤©çš„æ•…äº‹èŠ‚ç‚¹
         if (pool2.Any())
             CurrentData = pool2[Random.Range(0, pool2.Count)];
         else if (pool1.Any()) CurrentData = pool1[Random.Range(0, pool1.Count)];
         else return;
 
-        //½«³õÊ¼»¯ºÃµÄÊı¾İÌî³äµ½ContentManagerÖĞµÈ´ıÏÔÊ¾
+        //å°†åˆå§‹åŒ–å¥½çš„æ•°æ®å¡«å……åˆ°ContentManagerä¸­ç­‰å¾…æ˜¾ç¤º
         DisplayContent(CurrentData);
 
-        //µÚÒ»ÌìÌØÊâÂß¼­
+        //ç¬¬ä¸€å¤©ç‰¹æ®Šé€»è¾‘
         if (day == 1)
         {
-            List<EventStoryData> pool3 = EventStoryTable.datas.Where(e => e.day.Contains(0)).ToList();
+            List<EventStoryData> pool3 = EventStoryTable.datas.Where(e => e.eventType == (int)EventStoryType.FirstDay).ToList();
             DisplayEnding(pool3[Random.Range(0, pool3.Count)], 0);
         }
     }
 
-    //Çå³ıµ±Ç°ÊÂ¼şËùÓĞĞÅÏ¢
+    //æ¸…é™¤å½“å‰äº‹ä»¶æ‰€æœ‰ä¿¡æ¯
     private void ClearData()
     {
     }
 
-    //½áËãµ±Ç°ÊÂ¼ş½á¹û
+    //ç»“ç®—å½“å‰äº‹ä»¶ç»“æœ
     public void SettleStoryline()
     {
         int resultIndex = contentManager.GetStorylineOption();
@@ -81,7 +81,7 @@ public class StorylineManager : MonoBehaviour
             exploreManager.selectedGroup = groupList[resultIndex];
         }
 
-        //¸ù¾İ½á¹ûÌá¹©½±Àø, µÀ¾ßºÍ×ÊÔ´±ä»¯
+        //æ ¹æ®ç»“æœæä¾›å¥–åŠ±, é“å…·å’Œèµ„æºå˜åŒ–
         if (CurrentData.getItem.Any())
         {
             resourceManager.AddItem(CurrentData.getItem[resultIndex]);
@@ -96,18 +96,18 @@ public class StorylineManager : MonoBehaviour
         //    resourceManager.DeductResource(CurrentData.lostRes[resultIndex]);
         //}
 
-        // ½ÇÉ«×´Ì¬±ä»¯
+        // è§’è‰²çŠ¶æ€å˜åŒ–
         if (CurrentData.statusChange.Any())
         {
             resourceManager.UpdateCharacter(CurrentData.statusChange[resultIndex][0], (LiveStatus)CurrentData.statusChange[resultIndex][1]);
         }
 
         processManager.SaveStorylineResult(CurrentData.id, resultIndex);
-        //½«³õÊ¼»¯ºÃµÄÊı¾İÌî³äµ½ContentManagerÖĞµÈ´ıÏÔÊ¾
+        //å°†åˆå§‹åŒ–å¥½çš„æ•°æ®å¡«å……åˆ°ContentManagerä¸­ç­‰å¾…æ˜¾ç¤º
         DisplayEnding(CurrentData, resultIndex);
     }
 
-    //¸ÄÎªÍ¨¹ıContentManagerÖ÷¶¯À­È¡
+    //æ”¹ä¸ºé€šè¿‡ContentManagerä¸»åŠ¨æ‹‰å–
     private void DisplayContent(EventStoryData storyData)
     {
         Debug.Log("Show story data id: " + storyData.id);

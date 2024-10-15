@@ -54,7 +54,6 @@ public class ContentManager : MonoBehaviour
         assignmentContent = new();
         exploryContent = new();
         storylineContent = new();
-        GC.Collect();
     }
 
     public void Init()
@@ -80,6 +79,9 @@ public class ContentManager : MonoBehaviour
 
         //更新探索页面角色状态和描述
         ExploryPage.Sync();
+
+        //更新探索页面角色状态和描述
+        StorylinePage.Sync();
 
         var StorylineContentUI = StorylinePage.transform.Find("TextContent").GetComponent<TextMeshProUGUI>();
         StorylineContentUI.text = TextTable.GetText(storylineManager.CurrentData.textContent);
@@ -137,7 +139,9 @@ public class ContentManager : MonoBehaviour
     public void CheckStorylineSelectGroup(EventStoryData storyData)
     {
         if (StorylinePage.SelectGroup != null)
+        {
             StorylinePage.SelectGroup.gameObject.SetActive(false);
+        }
 
         if (storyData.eventType == (int)EventStoryType.Select)
         {

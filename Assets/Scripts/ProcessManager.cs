@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using Util;
 
-//ÓÃÀ´¹ÜÀí»ØºÏÇĞ»»Âß¼­, Í³¼Æ´¦Àí»ã×Ü¸÷¸öÄ£¿éµÄ½á¹û²¢±£´æ¼ÇÂ¼
+//ç”¨æ¥ç®¡ç†å›åˆåˆ‡æ¢é€»è¾‘, ç»Ÿè®¡å¤„ç†æ±‡æ€»å„ä¸ªæ¨¡å—çš„ç»“æœå¹¶ä¿å­˜è®°å½•
 public class ProcessManager : MonoBehaviour
 {
     public int CurrentDay { get; private set; }
@@ -17,10 +17,10 @@ public class ProcessManager : MonoBehaviour
     private ResourceManager resourceManager;
     private ContentManager contentManager;
 
-    //ÓÎÏ·ÖĞµÄ¸÷ÖÖ¼ÇÂ¼
+    //æ¸¸æˆä¸­çš„å„ç§è®°å½•
     public List<DayRecord> dayRecord = new();
     public Dictionary<int, int> storylineRecord = new();
-    public Dictionary<int, int> exploreRecord = new();
+    public Dictionary<int, int> exploreRecord = new() { [0] = 1 };
 
     public void Start()
     {
@@ -53,8 +53,8 @@ public class ProcessManager : MonoBehaviour
         }
     }
 
-    //todo ¸ÄÎªÊÂ¼ş´¦Àí, ²»¹ıÏÖÔÚÕâÑù¸üºÃÕ¹Ê¾Á÷³Ì
-    //³õÊ¼»¯µ±ÌìµÄÊı¾İ, Ö®ºóÍ¬²½ÏÔÊ¾ÄÚÈİ
+    //todo æ”¹ä¸ºäº‹ä»¶å¤„ç†, ä¸è¿‡ç°åœ¨è¿™æ ·æ›´å¥½å±•ç¤ºæµç¨‹
+    //åˆå§‹åŒ–å½“å¤©çš„æ•°æ®, ä¹‹ååŒæ­¥æ˜¾ç¤ºå†…å®¹
     public void InitCurrentDay()
     {
         Debug.Log("Init day" + CurrentDay);
@@ -62,7 +62,7 @@ public class ProcessManager : MonoBehaviour
         contentManager.Sync();
     }
 
-    //½áËãµ±ÌìµÄ¸÷ÖÖÑ¡ÔñºÍÊÂ¼ş
+    //ç»“ç®—å½“å¤©çš„å„ç§é€‰æ‹©å’Œäº‹ä»¶
     public bool EndCurrentDay()
     {
         Debug.Log("End day " + CurrentDay);
@@ -75,7 +75,7 @@ public class ProcessManager : MonoBehaviour
         return true;
     }
 
-    //ÅĞ¶ÏÄ³¸öÌõ¼ş¼¯ÊÇ·ñÂú×ã, ´«Ò»¸öÃ»ÓĞconditionÊ±µÄÄ¬ÈÏÖµ
+    //åˆ¤æ–­æŸä¸ªæ¡ä»¶é›†æ˜¯å¦æ»¡è¶³, ä¼ ä¸€ä¸ªæ²¡æœ‰conditionæ—¶çš„é»˜è®¤å€¼
     public bool CanMeetCondition(List<List<Condition>> conditionSet, bool result = true)
     {
         foreach (var andList in conditionSet)
@@ -95,9 +95,13 @@ public class ProcessManager : MonoBehaviour
                         value = resourceManager.GetCharacterStatus(Convert.ToInt32(condition.param[0])).GetValue(StatusType.Thirsty);
                         conditionValue = Convert.ToInt32(condition.param[1]);
                         break;
-                    case "EVT":
-                        value = storylineRecord.GetValueOrDefault(Convert.ToInt32(condition.param[0]));
-                        conditionValue = Convert.ToInt32(condition.param[1]);
+                    case "FOOD":
+                        value = resourceManager.GetResourceNum(ResourceType.Food);
+                        conditionValue = Convert.ToInt32(condition.param[0]);
+                        break;
+                    case "WATER":
+                        value = resourceManager.GetResourceNum(ResourceType.Water);
+                        conditionValue = Convert.ToInt32(condition.param[0]);
                         break;
                     case "ITEM":
                         value = resourceManager.HasItem(Convert.ToInt32(condition.param[0])) ? 1 : 0;
@@ -109,7 +113,13 @@ public class ProcessManager : MonoBehaviour
                         break;
                     case "EXPLORE":
                         value = exploreRecord.GetValueOrDefault(Convert.ToInt32(condition.param[0]));
-                        conditionValue = Convert.ToInt32(condition.param[0]);
+                        //conditionValue = Convert.ToInt32(condition.param[1]);
+                        conditionValue = 1;
+                        break;
+                    case "EVT":
+                        value = storylineRecord.GetValueOrDefault(Convert.ToInt32(condition.param[0]));
+                        //conditionValue = Convert.ToInt32(condition.param[1]);
+                        conditionValue = 1;
                         break;
                 }
                 switch (condition.func)
@@ -131,18 +141,20 @@ public class ProcessManager : MonoBehaviour
         return result;
     }
 
-    //±£´æÊÂ¼ş½á¹û
+    //ä¿å­˜äº‹ä»¶ç»“æœ
     public void SaveStorylineResult(int id, int result)
     {
         //storylineRecord.Add(id, result);
-        storylineRecord[id] = result;
+        //storylineRecord[id] = result;
+        storylineRecord[id] = 1;
     }
 
-    //±£´æÌ½Ë÷½á¹û
+    //ä¿å­˜æ¢ç´¢ç»“æœ
     public void SaveExploreResult(int id, int result)
     {
         //exploreRecord.Add(id, result);
-        exploreRecord[id] = result;
+        exploreRecord[id] = 1;
+        exploreRecord[0] = 0;
     }
 
 }

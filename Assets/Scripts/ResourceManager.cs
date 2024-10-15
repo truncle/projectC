@@ -24,7 +24,7 @@ public class CharacterStatus
 {
     public int characterId;
     public Dictionary<StatusType, int> statusValues;
-    public LiveStatus liveStatus;//´æ»î×´Ì¬
+    public LiveStatus liveStatus;//å­˜æ´»çŠ¶æ€
 
     public int GetValue(StatusType type)
     {
@@ -47,26 +47,26 @@ public class CharacterStatus
     }
 }
 
-//ÓÃÀ´¹ÜÀíÃ¿ÂÖµÄ×ÊÔ´±ä¸ü
+//ç”¨æ¥ç®¡ç†æ¯è½®çš„èµ„æºå˜æ›´
 public class ResourceManager : MonoBehaviour
 {
     public List<CharacterStatus> characters;
     public Dictionary<ResourceType, int> resourceValues;
     public HashSet<int> items;
 
-    //»ØºÏÖĞÔİ´æ, »ØºÏ½áÊøÍ¬²½µ½×ÊÔ´ÖµÖĞ
+    //å›åˆä¸­æš‚å­˜, å›åˆç»“æŸåŒæ­¥åˆ°èµ„æºå€¼ä¸­
     public List<CharacterStatus> charactersTemp;
     public Dictionary<ResourceType, int> resourceValuesTemp;
     public HashSet<int> itemsTemp;
 
-    //±¾ÈÕ×ÊÔ´·ÖÅä
+    //æœ¬æ—¥èµ„æºåˆ†é…
     public Dictionary<int, Dictionary<ResourceType, bool>> resourceAlloc;
 
     public void Start()
     {
     }
 
-    //³õÊ¼»¯»ù±¾×ÊÔ´Öµ
+    //åˆå§‹åŒ–åŸºæœ¬èµ„æºå€¼
     public void Init()
     {
         CharacterConstTable.Init();
@@ -127,7 +127,7 @@ public class ResourceManager : MonoBehaviour
         resourceAlloc = new();
     }
 
-    //·ÖÅä×ÊÔ´
+    //åˆ†é…èµ„æº
     public bool AllocResource(int characterId, ResourceType type)
     {
         if (!HasResource(type, 1))
@@ -151,9 +151,9 @@ public class ResourceManager : MonoBehaviour
         return true;
     }
 
-    //==================== ³£ÓÃ·½·¨ =======================
+    //==================== å¸¸ç”¨æ–¹æ³• =======================
 
-    //µÀ¾ßÊÇ·ñ×ã¹»
+    //é“å…·æ˜¯å¦è¶³å¤Ÿ
     public bool HasItem(int itemId)
     {
         return itemsTemp.Contains(itemId);
@@ -169,7 +169,7 @@ public class ResourceManager : MonoBehaviour
         return true;
     }
 
-    //¿Û³ıµÀ¾ß
+    //æ‰£é™¤é“å…·
     public bool DeductItem(int itemId)
     {
         return itemsTemp.Remove(itemId);
@@ -184,7 +184,7 @@ public class ResourceManager : MonoBehaviour
         return true;
     }
 
-    //Ôö¼ÓµÀ¾ß
+    //å¢åŠ é“å…·
     public bool AddItem(int itemId)
     {
         if (itemId <= 0)
@@ -200,7 +200,7 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    //ĞŞ¸Ä½ÇÉ«×´Ì¬, »¹ĞèÒª´¦Àí¸÷ÖÖ×´Ì¬ < 0Ê±µÄÇé¿ö
+    //ä¿®æ”¹è§’è‰²çŠ¶æ€, è¿˜éœ€è¦å¤„ç†å„ç§çŠ¶æ€ < 0æ—¶çš„æƒ…å†µ
     public bool UpdateCharacter(CharacterStatus changeStatus)
     {
         CharacterStatus characterStatus = charactersTemp.Where(e => e.characterId == changeStatus.characterId).First();
@@ -259,7 +259,7 @@ public class ResourceManager : MonoBehaviour
         return resourceValues.GetValueOrDefault(type);
     }
 
-    //×ÊÔ´ÊÇ·ñ×ã¹»
+    //èµ„æºæ˜¯å¦è¶³å¤Ÿ
     public bool HasResource(ResourceType type, int num)
     {
         return resourceValuesTemp.GetValueOrDefault(type) >= num;
@@ -303,7 +303,7 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    //Ã¿Ìì½áÊøÊ±½áËã×ÊÔ´ÏûºÄ
+    //æ¯å¤©ç»“æŸæ—¶ç»“ç®—èµ„æºæ¶ˆè€—
     public void SettleDayResource()
     {
         MiscData resConsume = MiscTable.Get("res_consume");
@@ -337,7 +337,7 @@ public class ResourceManager : MonoBehaviour
         SyncResource();
     }
 
-    //½«×ÊÔ´±ä¸üÍ¬²½µ½µ±Ç°×ÊÔ´
+    //å°†èµ„æºå˜æ›´åŒæ­¥åˆ°å½“å‰èµ„æº
     public void SyncResource()
     {
         resourceAlloc.Clear();
@@ -356,13 +356,13 @@ public class ResourceManager : MonoBehaviour
         items = new(itemsTemp);
     }
 
-    //²éÑ¯½Ó¿Ú
+    //æŸ¥è¯¢æ¥å£
     public CharacterStatus GetCharacterStatus(int characterId)
     {
         return charactersTemp.Where(e => e.characterId == characterId).First();
     }
 
-    ////»ñÈ¡µÀ¾ßÏäÖĞµÄµÀ¾ß
+    ////è·å–é“å…·ç®±ä¸­çš„é“å…·
     //public List<int> GetItembox(int itemboxId)
     //{
     //    List<int> items = ItemboxTable.Get(itemboxId).GetItems();

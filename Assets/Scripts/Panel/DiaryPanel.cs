@@ -155,7 +155,7 @@ public class DiaryPanel : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    //×ÊÔ´·ÖÅäÂß¼­»¹ĞèÒªÈ·ÈÏÒ»ÏÂ
+    //èµ„æºåˆ†é…é€»è¾‘è¿˜éœ€è¦ç¡®è®¤ä¸€ä¸‹
     public void DoAssignResource()
     {
 
@@ -185,7 +185,7 @@ public class DiaryPanel : MonoBehaviour
         }
     }
 
-    //ÊÂ¼şÑ¡Ôñ
+    //äº‹ä»¶é€‰æ‹©
     public void SelectStory(int option)
     {
 

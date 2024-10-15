@@ -13,6 +13,7 @@ namespace Table
         public int id;
         public int textContent; //事件出现时的文本
         public int eventType;
+        public int eventTest;
         public List<int> day;
         public List<int> provideItem; //可以提供的道具
         public List<List<int>> provideRes; //可选提供的资源
@@ -38,10 +39,15 @@ namespace Table
             RawTable rawTable = GameUtil.ReadCsvTable("eventStory.csv");
             foreach (var row in rawTable.data)
             {
+                int eventType = Convert.ToInt32(rawTable.Get("eventType", row));
+                if (eventType == 0)
+                    //剔除空事件
+                    continue;
                 EventStoryData data = new();
                 data.id = Convert.ToInt32(rawTable.Get("id", row));
                 data.textContent = Convert.ToInt32(rawTable.Get("textContent", row));
                 data.eventType = Convert.ToInt32(rawTable.Get("eventType", row));
+                data.eventTest = Convert.ToInt32(rawTable.Get("eventTest", row));
                 data.day = new();
                 List<int> daySpan = rawTable.GetList<int>("day", row, ":");
                 if (daySpan.Count == 1)

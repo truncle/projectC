@@ -5,7 +5,7 @@ using Util;
 using UnityEngine;
 using System.Linq;
 
-//ÓÃÓÚÅĞ¶ÏºÍ¿ØÖÆ¹ÊÊÂÌ½Ë÷ÄÚÈİ
+//ç”¨äºåˆ¤æ–­å’Œæ§åˆ¶æ•…äº‹æ¢ç´¢å†…å®¹
 
 public enum ExploreState
 {
@@ -30,15 +30,15 @@ public class ExploreManager : MonoBehaviour
     private ProcessManager processManager;
     private ContentManager contentManager;
 
-    //Ì½Ë÷×´Ì¬
+    //æ¢ç´¢çŠ¶æ€
     public ExploreState exploreState = ExploreState.Idle;
     public bool PrepareExplore { get; set; } = false;
 
-    //ÒÑÑ¡ÔñµÄ×é±ğºÍÑ¡ÖĞµÄ×é±ğ
+    //å·²é€‰æ‹©çš„ç»„åˆ«å’Œé€‰ä¸­çš„ç»„åˆ«
     public HashSet<int> checkedGroupSet = new();
     public int selectedGroup = 0;
 
-    //Ì½Ë÷ÖĞĞÅÏ¢
+    //æ¢ç´¢ä¸­ä¿¡æ¯
     public ExploreData exploreData;
     public int exploreCharacter = 0;
     public int carryItem = 0;
@@ -55,7 +55,7 @@ public class ExploreManager : MonoBehaviour
         contentManager = GetComponent<ContentManager>();
     }
 
-    //½áËãµ±ÌìµÄÌ½Ë÷ÏµÍ³
+    //ç»“ç®—å½“å¤©çš„æ¢ç´¢ç³»ç»Ÿ
     public void SettleDayExplore()
     {
         if (exploreState == ExploreState.Idle && PrepareExplore)
@@ -69,7 +69,7 @@ public class ExploreManager : MonoBehaviour
             CheckEndExplore();
     }
 
-    //¼ì²éÌ½Ë÷¿ªÊ¼
+    //æ£€æŸ¥æ¢ç´¢å¼€å§‹
     public void CheckStartExplore()
     {
         ExploreOption option = contentManager.GetExploreOption();
@@ -81,7 +81,7 @@ public class ExploreManager : MonoBehaviour
 
         exploreCharacter = option.characterId;
         carryItem = option.carryItem;
-        //É¸³öËùÓĞÂú×ãÌõ¼şµÄÌ½Ë÷Ïî
+        //ç­›å‡ºæ‰€æœ‰æ»¡è¶³æ¡ä»¶çš„æ¢ç´¢é¡¹
         int groupId = selectedGroup;
         if (groupId == 0)
         {
@@ -93,7 +93,7 @@ public class ExploreManager : MonoBehaviour
             checkedGroupSet.Add(groupId);
         }
 
-        //¶ÁÈ¡ÅäÖÃ
+        //è¯»å–é…ç½®
         MiscData exploreLimit1 = MiscTable.Get("explore_limit_1");
         MiscData exploreLimit2 = MiscTable.Get("explore_limit_2");
         int exploreReturnDay = 1;
@@ -111,7 +111,7 @@ public class ExploreManager : MonoBehaviour
         Debug.Log($"exploreNum: {exploreNum}");
         List<ExploreData> pool = ExploreTable.datas.Where(e =>
         {
-            //¸ù¾İincludeºÍexcludeÉ¸Ñ¡
+            //æ ¹æ®includeå’Œexcludeç­›é€‰
             return e.groupId == groupId
             && e.exploreNum == exploreNum
             && processManager.CanMeetCondition(e.include)
@@ -121,11 +121,11 @@ public class ExploreManager : MonoBehaviour
         exploreState = ExploreState.Exploring;
         exploreDay = 0;
 
-        // ¸üĞÂÊÂ¼ş½á¹ûµÄÏÔÊ¾
+        // æ›´æ–°äº‹ä»¶ç»“æœçš„æ˜¾ç¤º
         DisplayExploreStart(exploreData);
     }
 
-    //¼ì²éÌ½Ë÷½áÊø
+    //æ£€æŸ¥æ¢ç´¢ç»“æŸ
     public void CheckEndExplore()
     {
 
@@ -137,17 +137,17 @@ public class ExploreManager : MonoBehaviour
             exploreDay++;
             return;
         }
-        //¼ÆËãÌ½Ë÷½á¹û, Ê§°Ü, Ò»°ã, ³É¹¦, ´ó³É¹¦
+        //è®¡ç®—æ¢ç´¢ç»“æœ, å¤±è´¥, ä¸€èˆ¬, æˆåŠŸ, å¤§æˆåŠŸ
         MiscData data = MiscTable.Get("explore_res_get");
         var resList = GameUtil.GetList3(data.para1);
         List<int> rateList = data.para2.Split("|").Select(int.Parse).ToList();
         int resultIndex = GameUtil.GetRandomIndices(rateList, resList.Count).First();
         List<List<int>> getResource = resList[resultIndex];
 
-        //¸ù¾İ½á¹ûÌá¹©½±Àø, µÀ¾ßºÍ×ÊÔ´±ä»¯
+        //æ ¹æ®ç»“æœæä¾›å¥–åŠ±, é“å…·å’Œèµ„æºå˜åŒ–
         resourceManager.AddResource(getResource);
 
-        //¸ù¾İĞ¯´øµÀ¾ßÌá¹©¶îÍâ½±Àø, µÀ¾ßºÍ×ÊÔ´±ä»¯
+        //æ ¹æ®æºå¸¦é“å…·æä¾›é¢å¤–å¥–åŠ±, é“å…·å’Œèµ„æºå˜åŒ–
         int extraIndex = exploreData.provideItem.IndexOf(carryItem) + 1;
         if (exploreData.getItem.Any())
         {
@@ -158,7 +158,7 @@ public class ExploreManager : MonoBehaviour
             resourceManager.AddResource(exploreData.getRes[extraIndex]);
         }
 
-        // ½ÇÉ«×´Ì¬±ä»¯
+        // è§’è‰²çŠ¶æ€å˜åŒ–
         //if (exploreData.statusChange.Any())
         //{
         //    resourceManager.UpdateCharacter(exploreData.statusChange[resultIndex][0], (LiveStatus)exploreData.statusChange[resultIndex][1]); ;
@@ -168,7 +168,7 @@ public class ExploreManager : MonoBehaviour
         int exploreNum = groupExploreNum.GetValueOrDefault(exploreData.groupId);
         groupExploreNum[exploreData.groupId] = exploreNum + 1;
 
-        //¸üĞÂÊÂ¼ş½á¹ûµÄÏÔÊ¾
+        //æ›´æ–°äº‹ä»¶ç»“æœçš„æ˜¾ç¤º
         DisplayExploreEnd(exploreData, 0);
 
         ClearData();
@@ -184,14 +184,14 @@ public class ExploreManager : MonoBehaviour
         exploreData = new();
     }
 
-    //--------------Íæ¼Ò²Ù×÷--------------
-    ////Ñ¡ÔñÌ½Ë÷½ÇÉ«
+    //--------------ç©å®¶æ“ä½œ--------------
+    ////é€‰æ‹©æ¢ç´¢è§’è‰²
     //public bool SelectCharacter(int characterId)
     //{
-    //    ////½ÇÉ«×´Ì¬
+    //    ////è§’è‰²çŠ¶æ€
     //    //if (resourceManager.GetCharacterStatus(characterId).liveStatus != LiveStatus.Normal)
     //    //    return false;
-    //    ////Ì½Ë÷ÀäÈ´
+    //    ////æ¢ç´¢å†·å´
     //    //if ((processManager.CurrentDay - lastExploreTime.GetValueOrDefault(characterId)) < Config.ExploreCoolDown)
     //    //    return false;
     //    exploreCharacter = characterId;
@@ -199,7 +199,7 @@ public class ExploreManager : MonoBehaviour
     //    return true;
     //}
 
-    ////È¡ÏûÑ¡Ôñ
+    ////å–æ¶ˆé€‰æ‹©
     //public void UnselectCharacter()
     //{
     //    exploreCharacter = 0;
