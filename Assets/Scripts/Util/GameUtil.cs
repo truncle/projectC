@@ -93,10 +93,24 @@ namespace Util
         public static List<int> GetRandomIndices(List<int> rateList, int numIndices)
         {
             HashSet<int> randomIndices = new HashSet<int>();
+            int rateSum = rateList.Sum((i) => i);
 
             while (randomIndices.Count < numIndices)
             {
-                int randomIndex = Random.Range(0, rateList.Count);
+                int randNum = Random.Range(0, rateSum);
+                int randomIndex = 0;
+                for (int i = 0; i < rateList.Count; i++)
+                {
+                    if (randNum < rateList[i])
+                    {
+                        randomIndex = i;
+                        break;
+                    }
+                    else
+                    {
+                        randNum -= rateList[i];
+                    }
+                }
                 randomIndices.Add(randomIndex);
             }
 

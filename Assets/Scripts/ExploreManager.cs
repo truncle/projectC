@@ -141,14 +141,14 @@ public class ExploreManager : MonoBehaviour
         MiscData data = MiscTable.Get("explore_res_get");
         var resList = GameUtil.GetList3(data.para1);
         List<int> rateList = data.para2.Split("|").Select(int.Parse).ToList();
-        int resultIndex = GameUtil.GetRandomIndices(rateList, resList.Count).First();
+        int resultIndex = GameUtil.GetRandomIndices(rateList, 1).First();
         List<List<int>> getResource = resList[resultIndex];
 
         //根据结果提供奖励, 道具和资源变化
         resourceManager.AddResource(getResource);
 
         //根据携带道具提供额外奖励, 道具和资源变化
-        int extraIndex = exploreData.provideItem.IndexOf(carryItem) + 1;
+        int extraIndex = exploreData.provideItem.IndexOf(carryItem);
         if (exploreData.getItem.Any())
         {
             resourceManager.AddItem(exploreData.getItem[extraIndex]);
