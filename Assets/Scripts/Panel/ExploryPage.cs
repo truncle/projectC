@@ -34,6 +34,11 @@ public class ExploryPage : MonoBehaviour
     {
     }
 
+    public void OnEnable()
+    {
+        Sync();
+    }
+
     public void Init()
     {
         maingameManagers = GameObject.Find("MaingameManagers");
@@ -71,7 +76,7 @@ public class ExploryPage : MonoBehaviour
             if (character.GetValue(StatusType.Thirsty) <= 2)
                 waterSign.SetActive(true);
             else waterSign.SetActive(false);
-            if (character.GetValue(StatusType.Hungry) <= 2)
+            if (character.GetValue(StatusType.Hungry) <= 4)
                 foodSign.SetActive(true);
             else foodSign.SetActive(false);
             if (character.liveStatus != LiveStatus.Normal)
@@ -82,9 +87,15 @@ public class ExploryPage : MonoBehaviour
         itemList = resourceManager.itemsTemp.ToList();
         Toggle prepareToggle = PreparePage.Find("PrepareToggle").GetComponent<Toggle>();
         prepareToggle.isOn = exploreManager.PrepareExplore;
-        foreach (var characterToggle in ExploreCharacters.GetComponentsInChildren<Toggle>())
+
+        //屏蔽探索选择
+        Toggle[] ExploreCharacterToggles = ExploreCharacters.GetComponentsInChildren<Toggle>();
+        for (int i = 0; i < ExploreCharacterToggles.Length; i++)
         {
-            characterToggle.isOn = false;
+            var characterId = i + 1;
+            CharacterStatus character = resourceManager.GetCharacterStatus(characterId);
+            ExploreCharacterToggles[i].isOn = false;
+            ExploreCharacterToggles[i].interactable = character.liveStatus == LiveStatus.Normal;
         }
         currItemIndex = -1;
         imageItem.sprite = defaultItemSprite;

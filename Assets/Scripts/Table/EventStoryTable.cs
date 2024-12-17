@@ -37,8 +37,12 @@ namespace Table
             if (datas.Any())
                 return;
             RawTable rawTable = GameUtil.ReadCsvTable("eventStory.csv");
+            int count = 0;
             foreach (var row in rawTable.data)
             {
+                count++;
+                if (count == 30)
+                    break;
                 int eventType = Convert.ToInt32(rawTable.Get("eventType", row));
                 if (eventType == 0)
                     //剔除空事件

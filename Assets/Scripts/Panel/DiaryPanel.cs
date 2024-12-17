@@ -100,8 +100,7 @@ public class DiaryPanel : MonoBehaviour
         {
             GameObject page = enablePages[currPageIndex];
             page.SetActive(false);
-            processManager.EndCurrentDay();
-            processManager.InitCurrentDay();
+            processManager.NextDay();
             currPageIndex = 0;
             GameObject nextPage = enablePages[currPageIndex];
             nextPage.SetActive(true);

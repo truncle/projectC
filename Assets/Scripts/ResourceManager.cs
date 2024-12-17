@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Table;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum ResourceType
@@ -39,6 +40,17 @@ public class CharacterStatus
     public void ChangeValue(KeyValuePair<StatusType, int> pair)
     {
         ChangeValue(pair.Key, pair.Value);
+    }
+
+    public CharacterStatus Clone()
+    {
+        CharacterStatus data = new()
+        {
+            characterId = characterId,
+            liveStatus = liveStatus,
+            statusValues = new(statusValues)
+        };
+        return data;
     }
 
     public override string ToString()
@@ -198,6 +210,16 @@ public class ResourceManager : MonoBehaviour
         {
             AddItem(item);
         }
+    }
+
+    public List<CharacterStatus> GetCharacters()
+    {
+        List<CharacterStatus> datas = new();
+        foreach (var character in characters)
+        {
+            datas.Add(character.Clone());
+        }
+        return datas;
     }
 
     //修改角色状态, 还需要处理各种状态 < 0时的情况

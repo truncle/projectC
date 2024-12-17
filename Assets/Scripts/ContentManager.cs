@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using Table;
 using TMPro;
@@ -64,7 +65,7 @@ public class ContentManager : MonoBehaviour
     }
 
     //把内容同步到表现上
-    public void Sync(bool isInit = false)
+    public void Sync()
     {
         DiaryPanel.InitRoundPages();
 
@@ -121,6 +122,24 @@ public class ContentManager : MonoBehaviour
         if (journalContent.ExploreFinishData.HasValue)
             sb.AppendLine('\n' + journalContent.GetExploreFinishText());
         return sb.ToString();
+    }
+
+    public void BuildAssignmentPageContent()
+    {
+        AssignmentPageContent content = new();
+        content.WaterNum = resourceManager.GetResourceNum(ResourceType.Water);
+        content.FoodNum = resourceManager.GetResourceNum(ResourceType.Food);
+        content.characters = resourceManager.GetCharacters();
+        assignmentContent = content;
+    }
+
+    public void BuildExplorePageContent()
+    {
+        ExploryPageContent content = new();
+        content.WaterNum = resourceManager.GetResourceNum(ResourceType.Water);
+        content.FoodNum = resourceManager.GetResourceNum(ResourceType.Food);
+        content.characters = resourceManager.GetCharacters();
+        exploryContent = content;
     }
     #endregion
 
@@ -217,11 +236,16 @@ public class JournalPageContent
 
 public class AssignmentPageContent
 {
-
+    public List<CharacterStatus> characters = new();
+    public int WaterNum;
+    public int FoodNum;
 }
+
 public class ExploryPageContent
 {
-
+    public List<CharacterStatus> characters = new();
+    public int WaterNum;
+    public int FoodNum;
 }
 
 public class StorylinePageContent

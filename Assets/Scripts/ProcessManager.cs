@@ -37,23 +37,15 @@ public class ProcessManager : MonoBehaviour
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-            InitCurrentDay();
-        else if (Input.GetKeyDown(KeyCode.W))
-        {
-            EndCurrentDay();
-        }
-        else if (Input.GetKeyDown(KeyCode.Z))
-        {
-            //storylineManager.Select(1);
-        }
-        else if (Input.GetKeyDown(KeyCode.E))
-        {
-            exploreManager.CheckStartExplore();
-        }
     }
 
-    //todo 改为事件处理, 不过现在这样更好展示流程
+    public void NextDay()
+    {
+        EndCurrentDay();
+        CurrentDay += 1;
+        InitCurrentDay();
+    }
+
     //初始化当天的数据, 之后同步显示内容
     public void InitCurrentDay()
     {
@@ -70,7 +62,6 @@ public class ProcessManager : MonoBehaviour
         storylineManager.SettleStoryline();
         exploreManager.SettleDayExplore();
         resourceManager.SettleDayResource();
-        CurrentDay += 1;
         //contentManager.Sync();
         return true;
     }

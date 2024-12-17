@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 public class AssignmentPage : MonoBehaviour
 {
-    GameManager gameManager;
     GameObject maingameManagers;
     ResourceManager resourceManager;
     public List<GameObject> assignCharacters = new();
@@ -21,9 +20,14 @@ public class AssignmentPage : MonoBehaviour
     {
     }
 
+    public void OnEnable()
+    {
+        Sync();
+    }
+
+
     public void Init()
     {
-        gameManager = GameManager.Instance;
         maingameManagers = GameObject.Find("MaingameManagers");
         resourceManager = maingameManagers.GetComponent<ResourceManager>();
         Transform charactersTransform = transform.Find("AssignCharacters");
@@ -49,7 +53,7 @@ public class AssignmentPage : MonoBehaviour
             if (characterStatus.GetValue(StatusType.Thirsty) <= 2)
                 waterSign.SetActive(true);
             else waterSign.SetActive(false);
-            if (characterStatus.GetValue(StatusType.Hungry) <= 2)
+            if (characterStatus.GetValue(StatusType.Hungry) <= 4)
                 foodSign.SetActive(true);
             else foodSign.SetActive(false);
             if (characterStatus.liveStatus != LiveStatus.Normal)
@@ -70,14 +74,18 @@ public class AssignmentPage : MonoBehaviour
     public void SelectFood(GameObject character)
     {
         GameObject checkMark = character.transform.Find("Food/CheckMark").gameObject;
+        int characterId = assignCharacters.IndexOf(character) + 1;
+        var characterStatus = resourceManager.GetCharacterStatus(characterId);
+        if (characterStatus.liveStatus == LiveStatus.Dead)
+            return;
         if (checkMark.activeSelf == false)
         {
-            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Food);
+            bool res = resourceManager.AllocResource(characterId, ResourceType.Food);
             if (!res) return;
         }
         else
         {
-            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Food);
+            bool res = resourceManager.UnallocResource(characterId, ResourceType.Food);
             if (!res) return;
         }
         checkMark.SetActive(!checkMark.activeSelf);
@@ -86,14 +94,18 @@ public class AssignmentPage : MonoBehaviour
     public void SelectWater(GameObject character)
     {
         GameObject checkMark = character.transform.Find("Water/CheckMark").gameObject;
+        int characterId = assignCharacters.IndexOf(character) + 1;
+        var characterStatus = resourceManager.GetCharacterStatus(characterId);
+        if (characterStatus.liveStatus == LiveStatus.Dead)
+            return;
         if (checkMark.activeSelf == false)
         {
-            bool res = resourceManager.AllocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Water);
+            bool res = resourceManager.AllocResource(characterId, ResourceType.Water);
             if (!res) return;
         }
         else
         {
-            bool res = resourceManager.UnallocResource(assignCharacters.IndexOf(character) + 1, ResourceType.Water);
+            bool res = resourceManager.UnallocResource(characterId, ResourceType.Water);
             if (!res) return;
         }
         checkMark.SetActive(!checkMark.activeSelf);
